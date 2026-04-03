@@ -1,0 +1,2221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LexFlow CRM</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --navy:#0B1628;--navy-mid:#132038;--navy-light:#1C2F4F;--navy-hover:#243a5e;
+  --gold:#C8963E;--gold-light:#E8B96A;--gold-pale:#F5E6CC;
+  --bg:#F2F4F8;--surface:#FFFFFF;--border:#E2E6ED;--border-hover:#C8D0DC;
+  --text-primary:#111827;--text-secondary:#5B6880;--text-muted:#9BA8BB;
+  --green:#16A34A;--green-pale:#DCFCE7;--green-mid:#BBF7D0;
+  --red:#DC2626;--red-pale:#FEE2E2;
+  --amber:#D97706;--amber-pale:#FEF3C7;
+  --blue:#2563EB;--blue-pale:#DBEAFE;
+  --purple:#7C3AED;--purple-pale:#EDE9FE;
+}
+html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text-primary);font-size:14px;}
+.serif{font-family:'Cormorant Garamond',serif;}
+.app{display:flex;height:100vh;overflow:hidden;}
+
+/* SIDEBAR */
+.sidebar{width:228px;min-width:228px;background:var(--navy);display:flex;flex-direction:column;border-right:1px solid rgba(255,255,255,0.05);}
+.logo-area{padding:22px 18px 18px;border-bottom:1px solid rgba(255,255,255,0.07);}
+.logo-area h1{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:600;color:#fff;letter-spacing:.5px;}
+.logo-area h1 span{color:var(--gold);}
+.logo-area p{font-size:10px;color:rgba(255,255,255,.3);margin-top:3px;letter-spacing:1.8px;text-transform:uppercase;}
+.nav-section{padding:14px 10px 4px;}
+.nav-label{font-size:9.5px;font-weight:600;letter-spacing:1.8px;text-transform:uppercase;color:rgba(255,255,255,.22);padding:0 8px 7px;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:6px;cursor:pointer;color:rgba(255,255,255,.5);font-size:13px;font-weight:400;transition:all .12s;margin-bottom:1px;position:relative;user-select:none;}
+.nav-item:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.82);}
+.nav-item.active{background:rgba(200,150,62,.18);color:var(--gold-light);}
+.nav-icon{font-size:14px;width:17px;text-align:center;flex-shrink:0;}
+.nav-badge{margin-left:auto;background:var(--gold);color:var(--navy);font-size:9.5px;font-weight:700;padding:1px 5px;border-radius:8px;min-width:18px;text-align:center;}
+.sidebar-bottom{margin-top:auto;padding:14px 10px;border-top:1px solid rgba(255,255,255,.07);}
+.user-row{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:6px;cursor:pointer;}
+.user-row:hover{background:rgba(255,255,255,.06);}
+.u-avatar{width:30px;height:30px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--navy);flex-shrink:0;}
+.user-info p{font-size:12.5px;font-weight:500;color:rgba(255,255,255,.82);}
+.user-info span{font-size:10.5px;color:rgba(255,255,255,.28);}
+
+/* MAIN */
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column;min-width:0;}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;height:58px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:20;}
+.topbar-left h2{font-size:18px;font-weight:600;}
+.topbar-left p{font-size:11.5px;color:var(--text-secondary);margin-top:1px;}
+.topbar-right{display:flex;align-items:center;gap:9px;}
+.view{display:none;padding:22px 24px;flex:1;}
+.view.active{display:block;}
+
+/* BUTTONS */
+.btn{padding:7px 15px;border-radius:7px;font-size:12.5px;font-weight:500;cursor:pointer;border:none;transition:all .12s;font-family:'DM Sans',sans-serif;line-height:1;}
+.btn-primary{background:var(--navy);color:#fff;}
+.btn-primary:hover{background:var(--navy-light);}
+.btn-gold{background:var(--gold);color:#fff;}
+.btn-gold:hover{background:var(--gold-light);color:var(--navy);}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text-secondary);}
+.btn-outline:hover{border-color:var(--border-hover);color:var(--text-primary);}
+.btn-danger{background:var(--red-pale);color:var(--red);border:1px solid #fca5a5;}
+.btn-danger:hover{background:#fecaca;}
+.btn-sm{padding:5px 11px;font-size:11.5px;}
+.btn-xs{padding:3px 8px;font-size:11px;}
+
+/* CARDS */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:10px;}
+.card-header{padding:14px 16px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.card-header h3{font-size:13px;font-weight:600;}
+.card-body{padding:14px 16px;}
+
+/* FORMS */
+.form-group{display:flex;flex-direction:column;gap:5px;}
+.form-label{font-size:11px;font-weight:600;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.6px;}
+.form-input{border:1px solid var(--border);border-radius:7px;padding:8px 11px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text-primary);background:var(--bg);outline:none;transition:border-color .12s;width:100%;}
+.form-input:focus{border-color:var(--gold);background:#fff;}
+.form-textarea{resize:vertical;min-height:80px;line-height:1.5;}
+.form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 10 10'%3E%3Cpath fill='%236B7280' d='M5 7L0 2h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;cursor:pointer;}
+.form-row{display:grid;gap:12px;margin-bottom:12px;}
+.form-row.c2{grid-template-columns:1fr 1fr;}
+.form-row.c3{grid-template-columns:1fr 1fr 1fr;}
+.form-row.c4{grid-template-columns:1fr 1fr 1fr 1fr;}
+.radio-group{display:flex;gap:10px;padding-top:2px;}
+.radio-opt{display:flex;align-items:center;gap:5px;cursor:pointer;font-size:13px;font-weight:400;}
+.radio-opt input{accent-color:var(--gold);cursor:pointer;}
+
+/* MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;align-items:center;justify-content:center;}
+.overlay.open{display:flex;}
+.modal{background:var(--surface);border-radius:12px;padding:26px;width:520px;max-width:95vw;max-height:88vh;overflow-y:auto;position:relative;}
+.modal-wide{width:700px;}
+.modal h2{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600;margin-bottom:4px;}
+.modal .sub{font-size:12.5px;color:var(--text-secondary);margin-bottom:18px;}
+.modal-footer{display:flex;gap:9px;justify-content:flex-end;margin-top:18px;padding-top:14px;border-top:1px solid var(--border);}
+.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:18px;line-height:1;}
+.modal-close:hover{color:var(--text-primary);}
+
+/* TAGS & BADGES */
+.tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap;}
+.tag-cd{background:var(--purple-pale);color:var(--purple);}
+.tag-dwi{background:#FEE2E2;color:#991B1B;}
+.tag-pi{background:var(--blue-pale);color:var(--blue);}
+.tag-fam{background:var(--green-pale);color:var(--green);}
+.tag-drug{background:#FEF3C7;color:#92400E;}
+.status-pill{font-size:11px;font-weight:600;padding:3px 9px;border-radius:12px;white-space:nowrap;}
+.sp-new{background:#FEF3C7;color:#92400E;}
+.sp-sched{background:var(--blue-pale);color:#1D4ED8;}
+.sp-intake{background:var(--purple-pale);color:#5B21B6;}
+.sp-retained{background:var(--green-pale);color:#14532D;}
+.sp-lost{background:var(--red-pale);color:#7F1D1D;}
+.priority-high{background:var(--red-pale);color:var(--red);}
+.priority-med{background:var(--amber-pale);color:var(--amber);}
+.priority-low{background:var(--green-pale);color:var(--green);}
+
+/* DASHBOARD */
+.kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px;}
+.kpi-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;position:relative;overflow:hidden;}
+.kpi-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;}
+.kpi-gold::after{background:var(--gold);}
+.kpi-green::after{background:var(--green);}
+.kpi-blue::after{background:var(--blue);}
+.kpi-red::after{background:var(--red);}
+.kpi-purple::after{background:var(--purple);}
+.kpi-label{font-size:10.5px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.9px;margin-bottom:7px;}
+.kpi-value{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:600;color:var(--text-primary);}
+.kpi-sub{font-size:11px;color:var(--text-secondary);margin-top:3px;}
+.kpi-sub.up{color:var(--green);}
+.kpi-sub.warn{color:var(--amber);}
+.kpi-sub.danger{color:var(--red);}
+.dash-grid{display:grid;grid-template-columns:1fr 320px;gap:16px;}
+
+/* ACTIVITY */
+.activity-item{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);}
+.activity-item:last-child{border-bottom:none;}
+.act-dot{width:7px;height:7px;border-radius:50%;margin-top:5px;flex-shrink:0;}
+.act-text{font-size:12.5px;line-height:1.45;}
+.act-time{font-size:11px;color:var(--text-muted);margin-top:2px;}
+
+/* PIPELINE */
+.pipeline-board{display:flex;gap:12px;overflow-x:auto;padding-bottom:8px;align-items:flex-start;}
+.pipeline-col{min-width:222px;max-width:235px;flex-shrink:0;}
+.col-header{padding:9px 12px;border-radius:7px 7px 0 0;display:flex;align-items:center;justify-content:space-between;}
+.col-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;}
+.col-count{font-size:10.5px;font-weight:700;padding:1px 6px;border-radius:4px;}
+.col-body{background:var(--bg);border:1px solid var(--border);border-top:none;border-radius:0 0 7px 7px;padding:8px;min-height:180px;display:flex;flex-direction:column;gap:7px;}
+.lead-card{background:var(--surface);border:1px solid var(--border);border-radius:7px;padding:11px 12px;cursor:pointer;transition:all .12s;border-left:3px solid transparent;}
+.lead-card:hover{border-color:var(--gold);box-shadow:0 2px 6px rgba(0,0,0,.07);}
+.lead-card.selected{border-left-color:var(--gold);background:#fffbf5;}
+.lc-name{font-size:13px;font-weight:600;margin-bottom:5px;}
+.lc-meta{font-size:11.5px;color:var(--text-secondary);display:flex;flex-direction:column;gap:2px;}
+.lc-footer{display:flex;align-items:center;justify-content:space-between;margin-top:9px;padding-top:7px;border-top:1px solid var(--border);}
+.days-ago{font-size:10.5px;}
+.days-ok{color:var(--text-muted);}
+.days-warn{color:var(--amber);font-weight:600;}
+.days-danger{color:var(--red);font-weight:600;}
+.lead-detail-panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;position:sticky;top:22px;max-height:calc(100vh - 102px);overflow-y:auto;}
+
+/* CALENDAR */
+.week-wrap{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.week-head-row{display:grid;grid-template-columns:52px repeat(7,1fr);}
+.week-body{display:grid;grid-template-columns:52px repeat(7,1fr);}
+.wh-empty{background:var(--navy);border-bottom:1px solid rgba(255,255,255,.08);}
+.wh-day{background:var(--navy);padding:10px 6px;text-align:center;border-right:1px solid rgba(255,255,255,.07);border-bottom:1px solid rgba(255,255,255,.08);}
+.wh-day:last-child{border-right:none;}
+.wh-day .dn{font-size:9.5px;text-transform:uppercase;letter-spacing:1px;opacity:.5;color:#fff;}
+.wh-day .dd{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:#fff;margin-top:1px;}
+.wh-day.today .dd{color:var(--gold);}
+.time-gutter{font-size:10.5px;color:var(--text-muted);text-align:right;padding:0 7px;}
+.time-row{height:56px;border-bottom:1px solid var(--border);display:flex;align-items:flex-start;padding-top:3px;}
+.day-slot{border-right:1px solid var(--border);height:56px;border-bottom:1px solid var(--border);padding:2px 3px;position:relative;}
+.day-slot:last-child{border-right:none;}
+.cal-event{border-radius:4px;padding:3px 6px;font-size:11px;font-weight:500;cursor:pointer;line-height:1.3;margin-bottom:2px;overflow:hidden;}
+.ev-intake{background:#EDE9FE;color:#5B21B6;border-left:3px solid #7C3AED;}
+.ev-consult{background:var(--blue-pale);color:#1D4ED8;border-left:3px solid var(--blue);}
+.ev-hearing{background:var(--green-pale);color:#15803D;border-left:3px solid var(--green);}
+.ev-followup{background:var(--amber-pale);color:#B45309;border-left:3px solid var(--amber);}
+
+/* INTAKE */
+.intake-header-bar{background:var(--navy);border-radius:10px;padding:18px 22px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;color:#fff;}
+.intake-header-bar h2{font-family:'Cormorant Garamond',serif;font-size:21px;font-weight:600;}
+.intake-header-bar p{font-size:11px;opacity:.45;margin-top:2px;}
+.ib-badge{background:rgba(200,150,62,.22);color:var(--gold-light);font-size:10.5px;font-weight:600;padding:4px 10px;border-radius:4px;border:1px solid rgba(200,150,62,.35);}
+.intake-layout{display:grid;grid-template-columns:1fr 310px;gap:16px;}
+.form-section{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:14px;}
+.fs-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:9px;}
+.fs-num{width:22px;height:22px;border-radius:50%;background:var(--navy);color:var(--gold);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.fs-header h3{font-size:13px;font-weight:600;}
+.fs-body{padding:14px 16px;}
+.prior-block{background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:11px 13px;margin-bottom:9px;}
+.prior-block-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;}
+.prior-block-head span{font-size:11px;font-weight:600;color:var(--text-muted);}
+.btn-remove{background:none;border:none;color:var(--red);cursor:pointer;font-size:11.5px;font-weight:500;font-family:'DM Sans',sans-serif;}
+.btn-add-row{background:none;border:1px dashed var(--border);border-radius:7px;padding:7px;font-size:12px;color:var(--text-secondary);cursor:pointer;width:100%;text-align:center;transition:all .12s;font-family:'DM Sans',sans-serif;margin-top:4px;}
+.btn-add-row:hover{border-color:var(--gold);color:var(--gold);}
+.fee-total-bar{background:var(--navy);border-radius:8px;padding:13px 15px;display:flex;justify-content:space-between;align-items:center;margin-top:10px;}
+.ftb-label{font-size:11px;color:rgba(255,255,255,.45);}
+.ftb-value{font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;color:var(--gold-light);}
+.notes-box{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:12px;}
+.notes-box.atty{border-color:var(--gold);}
+.nb-header{padding:11px 13px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px;}
+.nb-icon{width:20px;height:20px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:12px;}
+.nb-header h4{font-size:12px;font-weight:600;}
+.nb-meta{font-size:10.5px;color:var(--text-muted);padding:7px 13px 4px;}
+.nb-body{padding:0 13px 12px;}
+.timeline-item{display:flex;gap:9px;padding:8px 0;border-bottom:1px solid var(--border);}
+.timeline-item:last-child{border-bottom:none;}
+.tl-dot{width:7px;height:7px;border-radius:50%;margin-top:4px;flex-shrink:0;}
+.tl-text{font-size:12px;}
+.tl-time{font-size:10.5px;color:var(--text-muted);}
+
+/* TASKS */
+.task-filters{display:flex;gap:7px;margin-bottom:16px;flex-wrap:wrap;}
+.filter-pill{padding:5px 13px;border-radius:20px;font-size:12px;font-weight:500;border:1px solid var(--border);background:var(--surface);color:var(--text-secondary);cursor:pointer;transition:all .12s;white-space:nowrap;}
+.filter-pill.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+.task-list{display:flex;flex-direction:column;gap:7px;}
+.task-row{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px 15px;display:flex;align-items:center;gap:12px;transition:all .12s;}
+.task-row:hover{border-color:var(--border-hover);}
+.task-row.done{opacity:.48;}
+.task-check{width:18px;height:18px;border-radius:5px;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .12s;}
+.task-check:hover{border-color:var(--green);}
+.task-check.checked{background:var(--green);border-color:var(--green);color:#fff;font-size:10px;}
+.task-info{flex:1;min-width:0;}
+.task-info p{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.task-info span{font-size:11.5px;color:var(--text-secondary);}
+.task-meta{display:flex;align-items:center;gap:7px;flex-shrink:0;}
+.task-type-chip{font-size:11px;color:var(--text-muted);background:var(--bg);padding:2px 7px;border-radius:4px;white-space:nowrap;}
+.assignee-chip{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text-secondary);white-space:nowrap;}
+.chip-av{width:18px;height:18px;border-radius:50%;background:var(--navy-light);color:#fff;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.due-chip{font-size:11.5px;font-weight:600;white-space:nowrap;}
+.due-ok{color:var(--text-muted);}
+.due-today{color:var(--amber);}
+.due-overdue{color:var(--red);}
+
+/* AI */
+.ai-chip{display:flex;align-items:center;gap:6px;background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.25);color:var(--purple);padding:5px 11px;border-radius:20px;font-size:11.5px;font-weight:500;}
+.ai-pulse{width:6px;height:6px;border-radius:50%;background:var(--purple);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+
+/* CLIENTS TABLE */
+.data-table{width:100%;border-collapse:collapse;}
+.data-table th{text-align:left;font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.9px;color:var(--text-muted);padding:9px 14px;border-bottom:2px solid var(--border);}
+.data-table td{padding:11px 14px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.data-table tr:hover td{background:var(--bg);}
+.data-table tr:last-child td{border-bottom:none;}
+.status-dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:5px;vertical-align:middle;}
+
+/* SEARCH BAR */
+.search-box{display:flex;align-items:center;gap:7px;background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:6px 11px;font-size:12.5px;color:var(--text-secondary);}
+.search-box input{border:none;background:transparent;outline:none;font-size:12.5px;color:var(--text-primary);font-family:'DM Sans',sans-serif;width:180px;}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:48px 20px;color:var(--text-muted);}
+.empty-state p{font-size:14px;margin-top:8px;}
+
+/* NOTIFICATION TOAST */
+.toast-wrap{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:8px;z-index:999;}
+.toast{background:var(--navy);color:#fff;padding:11px 16px;border-radius:8px;font-size:13px;border-left:3px solid var(--gold);box-shadow:0 4px 12px rgba(0,0,0,.2);animation:slideIn .2s ease;max-width:300px;}
+.toast.success{border-left-color:var(--green);}
+.toast.error{border-left-color:var(--red);}
+@keyframes slideIn{from{opacity:0;transform:translateX(20px);}to{opacity:1;transform:translateX(0);}}
+
+/* PILL TOGGLE */
+.pill-toggle{display:flex;background:var(--bg);border:1px solid var(--border);border-radius:7px;padding:2px;gap:2px;}
+.pt-opt{padding:5px 12px;border-radius:5px;font-size:12px;font-weight:500;cursor:pointer;color:var(--text-secondary);transition:all .12s;}
+.pt-opt.active{background:var(--surface);color:var(--text-primary);box-shadow:0 1px 3px rgba(0,0,0,.08);}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+::-webkit-scrollbar-thumb:hover{background:var(--border-hover);}
+
+/* DIVIDER */
+.divider{border:none;border-top:1px solid var(--border);margin:14px 0;}
+
+/* ── FEATURE: AI DOC GENERATOR ── */
+.modal-fullscreen{width:min(860px,96vw);max-height:90vh;}
+.doc-viewer{background:#fff;border:1px solid var(--border);border-radius:8px;padding:32px 40px;font-family:'Cormorant Garamond',serif;font-size:15px;line-height:1.75;color:#1a1a1a;max-height:56vh;overflow-y:auto;white-space:pre-wrap;word-break:break-word;}
+.doc-viewer h1{font-size:22px;font-weight:600;text-align:center;margin-bottom:4px;}
+.doc-viewer h2{font-size:16px;font-weight:600;margin:18px 0 6px;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #ddd;padding-bottom:4px;}
+.doc-toolbar{display:flex;gap:8px;align-items:center;padding:12px 0 8px;}
+.generating-spinner{display:flex;align-items:center;gap:10px;padding:40px;justify-content:center;color:var(--text-secondary);font-size:13px;}
+.spin{width:20px;height:20px;border:2px solid var(--border);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.doc-type-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px;}
+.doc-type-btn{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:14px 16px;cursor:pointer;text-align:left;transition:all .12s;font-family:'DM Sans',sans-serif;}
+.doc-type-btn:hover{border-color:var(--gold);background:var(--gold-pale);}
+.doc-type-btn .dtb-icon{font-size:20px;margin-bottom:6px;}
+.doc-type-btn .dtb-title{font-size:13px;font-weight:600;color:var(--text-primary);}
+.doc-type-btn .dtb-desc{font-size:11.5px;color:var(--text-secondary);margin-top:2px;}
+
+/* ── FEATURE: E-SIGNATURE ── */
+.sig-canvas-wrap{background:#f9f9fb;border:1.5px dashed var(--border);border-radius:8px;padding:8px;position:relative;margin-bottom:10px;}
+#sig-canvas{display:block;width:100%;height:180px;cursor:crosshair;touch-action:none;}
+.sig-saved-wrap{margin-top:10px;}
+.sig-saved-img{max-width:100%;border:1px solid var(--border);border-radius:6px;background:#fff;}
+.sig-status{font-size:11.5px;margin-top:6px;}
+.sig-status.has-sig{color:var(--green);font-weight:600;}
+.sig-status.no-sig{color:var(--text-muted);}
+
+/* ── FEATURE: DEADLINE CALCULATOR ── */
+.deadline-panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;margin-bottom:12px;}
+.dl-header{padding:11px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.dl-header h4{font-size:12.5px;font-weight:600;}
+.dl-item{display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid var(--border);font-size:12.5px;}
+.dl-item:last-child{border-bottom:none;}
+.dl-date{font-weight:600;color:var(--navy);min-width:90px;font-size:12px;}
+.dl-label{flex:1;color:var(--text-primary);}
+.dl-priority{font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;flex-shrink:0;}
+.dl-urgent{background:var(--red-pale);color:var(--red);}
+.dl-important{background:var(--amber-pale);color:var(--amber);}
+.dl-normal{background:var(--blue-pale);color:var(--blue);}
+.dl-added{background:var(--green-pale);color:var(--green);}
+.dl-check{width:16px;height:16px;border-radius:4px;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;cursor:pointer;}
+.dl-check.done{background:var(--green);border-color:var(--green);color:#fff;}
+
+/* PRINT STYLES */
+@media print{
+  .sidebar,.topbar,.btn,.modal-close,.doc-toolbar,.bottom-nav{display:none!important;}
+  .doc-viewer{max-height:none;border:none;padding:0;font-size:12pt;}
+  body{background:#fff;}
+}
+
+/* ══════════════════════════════════════
+   MOBILE — iPhone friendly
+   ══════════════════════════════════════ */
+
+/* Bottom nav bar — hidden on desktop */
+.bottom-nav{display:none;}
+
+@media(max-width:768px){
+
+  /* Core layout — stack vertically, hide sidebar */
+  .app{flex-direction:column;}
+  .sidebar{display:none;}
+  .main{height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+
+  /* Bottom nav */
+  .bottom-nav{
+    display:flex;position:fixed;bottom:0;left:0;right:0;
+    background:var(--navy);border-top:1px solid rgba(255,255,255,.1);
+    z-index:50;padding-bottom:env(safe-area-inset-bottom);
+  }
+  .bn-item{
+    flex:1;display:flex;flex-direction:column;align-items:center;
+    padding:10px 4px 8px;gap:3px;cursor:pointer;color:rgba(255,255,255,.45);
+    font-size:9.5px;font-weight:500;letter-spacing:.3px;text-transform:uppercase;
+    transition:color .15s;position:relative;-webkit-tap-highlight-color:transparent;
+  }
+  .bn-item.active{color:var(--gold-light);}
+  .bn-item .bn-icon{font-size:19px;line-height:1;}
+  .bn-item .bn-badge{
+    position:absolute;top:6px;right:calc(50% - 18px);
+    background:var(--gold);color:var(--navy);font-size:8.5px;font-weight:700;
+    padding:1px 4px;border-radius:8px;min-width:15px;text-align:center;
+  }
+  /* More menu drawer */
+  .more-drawer{
+    display:none;position:fixed;bottom:calc(56px + env(safe-area-inset-bottom));
+    left:0;right:0;background:var(--navy);border-top:1px solid rgba(255,255,255,.1);
+    z-index:49;padding:12px;
+  }
+  .more-drawer.open{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .md-item{
+    display:flex;align-items:center;gap:10px;padding:12px 14px;
+    border-radius:8px;background:rgba(255,255,255,.06);cursor:pointer;
+    color:rgba(255,255,255,.75);font-size:13px;-webkit-tap-highlight-color:transparent;
+  }
+  .md-item.active{background:rgba(200,150,62,.2);color:var(--gold-light);}
+  .md-item .md-icon{font-size:16px;}
+
+  /* Topbar — simplified */
+  .topbar{padding:0 16px;height:54px;}
+  .topbar-left p{display:none;}
+  .topbar-left h2{font-size:16px;}
+  /* Hide secondary topbar items on mobile */
+  .topbar-right .search-box,
+  .topbar-right .ai-chip,
+  .topbar-right .btn-outline{display:none;}
+  .topbar-right .btn{padding:8px 14px;font-size:12px;}
+
+  /* Views — bottom nav clearance */
+  .view{padding:14px 14px 80px;}
+  .view>div[style*="padding"]{padding:14px 14px 80px!important;}
+
+  /* KPI grid — 2 cols on phone */
+  .kpi-grid{grid-template-columns:1fr 1fr!important;gap:10px;}
+  .kpi-card{padding:12px 13px;}
+  .kpi-value{font-size:26px;}
+
+  /* Dashboard grid — single col */
+  .dash-grid{grid-template-columns:1fr!important;gap:12px;}
+
+  /* Pipeline — vertical list instead of horizontal kanban */
+  .pipeline-board{flex-direction:column!important;gap:0!important;overflow-x:visible!important;}
+  .pipeline-col{min-width:0!important;max-width:none!important;width:100%!important;}
+  .col-body{min-height:0!important;}
+  /* Lead detail — full width, slide over */
+  #lead-detail-panel{
+    position:fixed!important;inset:0!important;z-index:40!important;
+    background:rgba(0,0,0,.45)!important;display:flex!important;
+    align-items:flex-end!important;padding:0!important;
+  }
+  #lead-detail-panel .lead-detail-panel{
+    position:relative!important;max-height:85vh!important;
+    width:100%!important;border-radius:16px 16px 0 0!important;
+    border-bottom:none!important;overflow-y:auto!important;
+  }
+
+  /* Calendar — hide week grid, show day list */
+  .week-wrap{display:none!important;}
+  #cal-day-list{display:flex!important;}
+
+  /* Intake layout — single col */
+  .intake-layout{grid-template-columns:1fr!important;}
+  .intake-header-bar{flex-direction:column!important;align-items:flex-start!important;gap:10px!important;padding:14px 16px!important;}
+  .intake-header-bar h2{font-size:18px!important;}
+
+  /* Form rows — all single col on mobile */
+  .form-row.c2,.form-row.c3,.form-row.c4{grid-template-columns:1fr!important;}
+
+  /* Form inputs — bigger touch targets */
+  .form-input{padding:11px 13px!important;font-size:14px!important;}
+  .btn{min-height:42px;font-size:13px!important;}
+  .btn-sm{min-height:36px;padding:6px 14px!important;font-size:12px!important;}
+
+  /* Tasks — hide some meta on small screens */
+  .task-meta .assignee-chip{display:none!important;}
+  .task-row{flex-wrap:wrap;gap:8px;}
+  .task-info{min-width:0;width:calc(100% - 34px);}
+
+  /* Modals — full screen sheet on mobile */
+  .overlay{align-items:flex-end!important;}
+  .modal{
+    width:100%!important;max-width:100%!important;
+    border-radius:16px 16px 0 0!important;
+    padding:20px 18px!important;
+    max-height:92vh!important;
+    padding-bottom:calc(20px + env(safe-area-inset-bottom))!important;
+  }
+  .modal-fullscreen{width:100%!important;}
+  .doc-type-grid{grid-template-columns:1fr!important;}
+  .doc-viewer{padding:16px!important;font-size:13px!important;max-height:45vh!important;}
+
+  /* Feature bar in intake */
+  .intake-feature-bar{flex-direction:column!important;}
+  .intake-feature-bar .btn{width:100%!important;}
+
+  /* Clients table — horizontal scroll */
+  #clients-table{font-size:12px;}
+  #clients-table th:nth-child(3),
+  #clients-table td:nth-child(3),
+  #clients-table th:nth-child(7),
+  #clients-table td:nth-child(7){display:none;}
+
+  /* Data tables */
+  .data-table th,.data-table td{padding:9px 10px!important;}
+
+  /* AI page — single col */
+  #view-ai>div[style*="grid"]{grid-template-columns:1fr!important;}
+
+  /* Deadline list items */
+  .dl-item{flex-wrap:wrap;gap:6px;}
+  .dl-date{min-width:0!important;}
+
+  /* Search bar */
+  .search-box input{width:130px!important;}
+}
+
+/* Extra small — very narrow phones */
+@media(max-width:380px){
+  .kpi-grid{grid-template-columns:1fr 1fr!important;}
+  .kpi-value{font-size:22px!important;}
+  .topbar-left h2{font-size:15px!important;}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="logo-area">
+    <h1>Lex<span>Flow</span></h1>
+    <p>Law Firm CRM</p>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Sales</div>
+    <div class="nav-item active" data-view="dashboard"><span class="nav-icon">◈</span>Dashboard</div>
+    <div class="nav-item" data-view="leads"><span class="nav-icon">◉</span>Lead Pipeline<span class="nav-badge" id="nb-leads">0</span></div>
+    <div class="nav-item" data-view="calendar"><span class="nav-icon">◷</span>Calendar</div>
+    <div class="nav-item" data-view="intake"><span class="nav-icon">◧</span>Intake<span class="nav-badge" id="nb-intake">0</span></div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Operations</div>
+    <div class="nav-item" data-view="tasks"><span class="nav-icon">◫</span>Tasks<span class="nav-badge" id="nb-tasks">0</span></div>
+    <div class="nav-item" data-view="clients"><span class="nav-icon">◑</span>Client Profiles</div>
+    <div class="nav-item" data-view="ai"><span class="nav-icon">◎</span>AI Outreach</div>
+  </div>
+  <div class="sidebar-bottom">
+    <div class="user-row">
+      <div class="u-avatar">MS</div>
+      <div class="user-info"><p>Maria Santos</p><span>Intake Specialist</span></div>
+    </div>
+  </div>
+</aside>
+
+<!-- MOBILE BOTTOM NAV -->
+<nav class="bottom-nav" id="bottom-nav">
+  <div class="bn-item active" data-view="dashboard" onclick="mobileNav('dashboard',this)">
+    <span class="bn-icon">◈</span><span>Home</span>
+  </div>
+  <div class="bn-item" data-view="leads" onclick="mobileNav('leads',this)">
+    <span class="bn-icon">◉</span><span>Leads</span>
+    <span class="bn-badge" id="mnb-leads">0</span>
+  </div>
+  <div class="bn-item" data-view="intake" onclick="mobileNav('intake',this)">
+    <span class="bn-icon">◧</span><span>Intake</span>
+    <span class="bn-badge" id="mnb-intake" style="display:none;">0</span>
+  </div>
+  <div class="bn-item" data-view="tasks" onclick="mobileNav('tasks',this)">
+    <span class="bn-icon">◫</span><span>Tasks</span>
+    <span class="bn-badge" id="mnb-tasks">0</span>
+  </div>
+  <div class="bn-item" onclick="toggleMoreDrawer(this)">
+    <span class="bn-icon">⋯</span><span>More</span>
+  </div>
+</nav>
+
+<!-- MOBILE MORE DRAWER -->
+<div class="more-drawer" id="more-drawer">
+  <div class="md-item" data-view="calendar" onclick="mobileNav('calendar',null);closeMoreDrawer()">
+    <span class="md-icon">◷</span>Calendar
+  </div>
+  <div class="md-item" data-view="clients" onclick="mobileNav('clients',null);closeMoreDrawer()">
+    <span class="md-icon">◑</span>Clients
+  </div>
+  <div class="md-item" data-view="ai" onclick="mobileNav('ai',null);closeMoreDrawer()">
+    <span class="md-icon">◎</span>AI Outreach
+  </div>
+  <div class="md-item" onclick="openModal('modal-add-lead');closeMoreDrawer()">
+    <span class="md-icon">＋</span>New Lead
+  </div>
+</div>
+<main class="main">
+
+  <!-- DASHBOARD -->
+  <div id="view-dashboard" class="view active">
+    <div class="topbar">
+      <div class="topbar-left"><h2>Dashboard</h2><p id="dash-date"></p></div>
+      <div class="topbar-right">
+        <div class="ai-chip"><div class="ai-pulse"></div>AI Receptionist Active</div>
+        <button class="btn btn-primary" onclick="openModal('modal-add-lead')">+ New Lead</button>
+      </div>
+    </div>
+    <div style="padding:22px 24px;">
+      <div class="kpi-grid" id="kpi-grid"></div>
+      <div class="dash-grid">
+        <div>
+          <div class="card" style="margin-bottom:16px;">
+            <div class="card-header"><h3>⚠ Needs Attention — No Contact 3+ Days</h3><button class="btn btn-sm btn-outline" onclick="switchView('leads')">View Pipeline</button></div>
+            <div class="card-body" style="padding:0;">
+              <table class="data-table" id="dash-stale-table"><tbody></tbody></table>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>Recent Activity</h3></div>
+            <div class="card-body" id="dash-activity"></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="card">
+            <div class="card-header"><h3>Today's Appointments</h3><span style="font-size:11px;color:var(--text-muted)" id="dash-appt-date"></span></div>
+            <div class="card-body" id="dash-appts"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3>Pipeline Snapshot</h3></div>
+            <div class="card-body" id="dash-pipeline-snap"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEADS PIPELINE -->
+  <div id="view-leads" class="view">
+    <div class="topbar">
+      <div class="topbar-left"><h2>Lead Pipeline</h2><p id="leads-sub"></p></div>
+      <div class="topbar-right">
+        <div class="search-box">🔍<input type="text" id="lead-search" placeholder="Search leads..." oninput="renderLeads()"></div>
+        <button class="btn btn-primary" onclick="openModal('modal-add-lead')">+ Add Lead</button>
+      </div>
+    </div>
+    <div style="padding:18px 24px;">
+      <div style="display:grid;grid-template-columns:1fr 310px;gap:14px;">
+        <div class="pipeline-board" id="pipeline-board"></div>
+        <div id="lead-detail-panel" style="display:none;">
+          <div class="lead-detail-panel" id="lead-detail-content"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CALENDAR -->
+  <div id="view-calendar" class="view">
+    <div class="topbar">
+      <div class="topbar-left"><h2>Calendar</h2><p id="cal-week-label"></p></div>
+      <div class="topbar-right">
+        <button class="btn btn-outline btn-sm" onclick="calNav(-1)">◀ Prev</button>
+        <button class="btn btn-outline btn-sm" onclick="calToday()">Today</button>
+        <button class="btn btn-outline btn-sm" onclick="calNav(1)">Next ▶</button>
+        <button class="btn btn-primary" onclick="openModal('modal-add-appt')">+ Schedule</button>
+      </div>
+    </div>
+    <div style="padding:18px 24px;">
+      <div style="display:flex;gap:12px;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--text-secondary);"><div style="width:10px;height:10px;border-radius:2px;background:#7C3AED;"></div>Intake</div>
+        <div style="display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--text-secondary);"><div style="width:10px;height:10px;border-radius:2px;background:var(--blue);"></div>Consultation</div>
+        <div style="display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--text-secondary);"><div style="width:10px;height:10px;border-radius:2px;background:var(--green);"></div>Hearing / Court</div>
+        <div style="display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--text-secondary);"><div style="width:10px;height:10px;border-radius:2px;background:var(--amber);"></div>Follow-Up</div>
+      </div>
+      <div class="week-wrap" id="week-wrap"></div>
+      <!-- MOBILE: day list view -->
+      <div id="cal-day-list" style="display:none;flex-direction:column;gap:10px;"></div>
+    </div>
+  </div>
+
+  <!-- INTAKE -->
+  <div id="view-intake" class="view">
+    <div class="topbar">
+      <div class="topbar-left"><h2>Intake</h2><p>Criminal Defense intake forms</p></div>
+      <div class="topbar-right">
+        <button class="btn btn-primary" onclick="showIntakeList()">All Intakes</button>
+        <button class="btn btn-gold" onclick="openNewIntake()">+ New Intake</button>
+      </div>
+    </div>
+    <div style="padding:18px 24px;" id="intake-area"></div>
+  </div>
+
+  <!-- TASKS -->
+  <div id="view-tasks" class="view">
+    <div class="topbar">
+      <div class="topbar-left"><h2>Tasks & Follow-Up</h2><p id="tasks-sub"></p></div>
+      <div class="topbar-right">
+        <button class="btn btn-primary" onclick="openModal('modal-add-task')">+ New Task</button>
+      </div>
+    </div>
+    <div style="padding:18px 24px;">
+      <div class="task-filters" id="task-filters"></div>
+      <div class="task-list" id="task-list"></div>
+    </div>
+  </div>
+
+  <!-- CLIENTS -->
+  <div id="view-clients" class="view">
+    <div class="topbar">
+      <div class="topbar-left"><h2>Client Profiles</h2><p id="clients-sub"></p></div>
+      <div class="topbar-right">
+        <div class="search-box">🔍<input type="text" id="client-search" placeholder="Name, phone, cause #..." oninput="renderClients()"></div>
+      </div>
+    </div>
+    <div style="padding:18px 24px;">
+      <div class="card">
+        <div class="card-body" style="padding:0;">
+          <table class="data-table" id="clients-table">
+            <thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>Practice Area</th><th>Status</th><th>Cause #</th><th>Intake By</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI OUTREACH -->
+  <div id="view-ai" class="view">
+    <div class="topbar">
+      <div class="topbar-left"><h2>AI Outreach Hub</h2><p>Automated calls, texts, and follow-up scheduling</p></div>
+      <div class="topbar-right"><div class="ai-chip"><div class="ai-pulse"></div>AI Receptionist Online</div></div>
+    </div>
+    <div style="padding:18px 24px;display:grid;grid-template-columns:1fr 310px;gap:16px;">
+      <div>
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-header"><h3>Today's AI Activity</h3></div>
+          <div class="card-body">
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;" id="ai-stats"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>AI Call & Text Log</h3></div>
+          <div class="card-body" style="padding:0;">
+            <table class="data-table" id="ai-log-table">
+              <thead><tr><th>Client</th><th>Type</th><th>Time</th><th>Outcome</th><th>Result</th></tr></thead>
+              <tbody id="ai-log-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card" style="margin-bottom:14px;">
+          <div class="card-header"><h3>Schedule AI Outreach</h3></div>
+          <div class="card-body">
+            <div style="display:flex;flex-direction:column;gap:11px;">
+              <div class="form-group"><label class="form-label">Client</label><select class="form-input form-select" id="ai-sched-client"></select></div>
+              <div class="form-group"><label class="form-label">Type</label><select class="form-input form-select" id="ai-sched-type"><option>📞 AI Follow-Up Call</option><option>💬 AI Text Message</option><option>📞 Appointment Reminder</option></select></div>
+              <div class="form-group"><label class="form-label">Schedule For</label><input class="form-input" type="datetime-local" id="ai-sched-dt"></div>
+              <div class="form-group"><label class="form-label">Custom Message (optional)</label><textarea class="form-input form-textarea" id="ai-sched-msg" placeholder="Message for AI to relay..." style="min-height:65px;"></textarea></div>
+              <button class="btn btn-gold" onclick="scheduleAIOutreach()" style="width:100%;margin-top:3px;">Schedule AI Outreach</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Integration Status</h3></div>
+          <div class="card-body">
+            <div style="display:flex;flex-direction:column;gap:9px;font-size:12.5px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;"><span>Voice (Bland.ai)</span><span style="background:var(--green-pale);color:var(--green);font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:4px;">Connected</span></div>
+              <div style="display:flex;justify-content:space-between;align-items:center;"><span>SMS (Twilio)</span><span style="background:var(--green-pale);color:var(--green);font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:4px;">Connected</span></div>
+              <div style="display:flex;justify-content:space-between;align-items:center;"><span>Calendar Sync</span><span style="background:var(--green-pale);color:var(--green);font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:4px;">Active</span></div>
+              <div style="display:flex;justify-content:space-between;align-items:center;"><span>E-Signature</span><span style="background:var(--amber-pale);color:var(--amber);font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:4px;">Coming Soon</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<!-- TOAST -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<!-- MODALS -->
+
+<!-- ADD LEAD -->
+<div class="overlay" id="modal-add-lead">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-add-lead')">✕</button>
+    <h2>Add New Lead</h2>
+    <p class="sub">Create a new prospect in the pipeline.</p>
+    <div class="form-row c2"><div class="form-group"><label class="form-label">First Name *</label><input class="form-input" id="al-first" placeholder="First"></div><div class="form-group"><label class="form-label">Last Name *</label><input class="form-input" id="al-last" placeholder="Last"></div></div>
+    <div class="form-row c2"><div class="form-group"><label class="form-label">Phone *</label><input class="form-input" id="al-phone" placeholder="(XXX) XXX-XXXX"></div><div class="form-group"><label class="form-label">Email</label><input class="form-input" id="al-email" type="email" placeholder="email@example.com"></div></div>
+    <div class="form-row c2"><div class="form-group"><label class="form-label">Lead Source</label><select class="form-input form-select" id="al-source"><option>Google Ads</option><option>Referral</option><option>Website</option><option>Social Media</option><option>Walk-In</option><option>Cold Call</option></select></div><div class="form-group"><label class="form-label">Practice Area</label><select class="form-input form-select" id="al-area"><option>Criminal Defense</option><option>DWI</option><option>Drug Charges</option><option>Personal Injury</option><option>Family Law</option></select></div></div>
+    <div class="form-group"><label class="form-label">Initial Notes</label><textarea class="form-input form-textarea" id="al-notes" placeholder="Brief description of case or inquiry..."></textarea></div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-add-lead')">Cancel</button><button class="btn btn-gold" onclick="addLead()">Create Lead</button></div>
+  </div>
+</div>
+
+<!-- LEAD DETAIL MODAL (for mobile/small layouts) -->
+<div class="overlay" id="modal-lead-detail">
+  <div class="modal modal-wide">
+    <button class="modal-close" onclick="closeModal('modal-lead-detail')">✕</button>
+    <div id="modal-lead-detail-content"></div>
+  </div>
+</div>
+
+<!-- ADD APPOINTMENT -->
+<div class="overlay" id="modal-add-appt">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-add-appt')">✕</button>
+    <h2>Schedule Appointment</h2>
+    <p class="sub">Book an appointment and create the intake folder.</p>
+    <div class="form-group" style="margin-bottom:12px;"><label class="form-label">Client / Lead</label><select class="form-input form-select" id="ap-lead"></select></div>
+    <div class="form-row c2"><div class="form-group"><label class="form-label">Date *</label><input class="form-input" type="date" id="ap-date"></div><div class="form-group"><label class="form-label">Time *</label><input class="form-input" type="time" id="ap-time" value="10:00"></div></div>
+    <div class="form-row c2"><div class="form-group"><label class="form-label">Type</label><select class="form-input form-select" id="ap-type"><option>Intake</option><option>Consultation</option><option>Follow-Up</option><option>Hearing</option></select></div><div class="form-group"><label class="form-label">Format</label><select class="form-input form-select" id="ap-format"><option>In-Person</option><option>Phone</option><option>Video</option></select></div></div>
+    <div class="form-group" style="margin-bottom:12px;"><label class="form-label">Notes</label><textarea class="form-input form-textarea" id="ap-notes" placeholder="Appointment notes..." style="min-height:65px;"></textarea></div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-add-appt')">Cancel</button><button class="btn btn-gold" onclick="addAppointment()">Book Appointment</button></div>
+  </div>
+</div>
+
+<!-- ADD TASK -->
+<div class="overlay" id="modal-add-task">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-add-task')">✕</button>
+    <h2>New Task</h2>
+    <p class="sub">Create a task or follow-up reminder.</p>
+    <div class="form-group" style="margin-bottom:12px;"><label class="form-label">Task Description *</label><input class="form-input" id="at-title" placeholder="What needs to be done?"></div>
+    <div class="form-group" style="margin-bottom:12px;"><label class="form-label">Linked Lead / Client</label><select class="form-input form-select" id="at-lead"><option value="">— None —</option></select></div>
+    <div class="form-row c2"><div class="form-group"><label class="form-label">Type</label><select class="form-input form-select" id="at-type"><option>📞 Call</option><option>💬 Text</option><option>📧 Email</option><option>📋 Form</option><option>🤖 AI Outreach</option><option>⚖ Legal</option><option>📄 Document</option></select></div><div class="form-group"><label class="form-label">Priority</label><select class="form-input form-select" id="at-priority"><option>High</option><option>Medium</option><option>Low</option></select></div></div>
+    <div class="form-row c2"><div class="form-group"><label class="form-label">Assigned To</label><select class="form-input form-select" id="at-assign"><option>Maria Santos</option><option>R. Hoffman</option><option>AI System</option><option>Staff</option></select></div><div class="form-group"><label class="form-label">Due Date</label><input class="form-input" type="date" id="at-due"></div></div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-add-task')">Cancel</button><button class="btn btn-gold" onclick="addTask()">Create Task</button></div>
+  </div>
+</div>
+
+<!-- MOVE LEAD STAGE -->
+<div class="overlay" id="modal-move-stage">
+  <div class="modal" style="width:400px;">
+    <button class="modal-close" onclick="closeModal('modal-move-stage')">✕</button>
+    <h2>Move Lead</h2>
+    <p class="sub" id="move-stage-sub"></p>
+    <div class="form-group" style="margin-bottom:14px;"><label class="form-label">Move to Stage</label><select class="form-input form-select" id="move-stage-select">
+      <option value="new">New Lead</option><option value="scheduled">Appointment Scheduled</option><option value="intake">Intake Completed</option><option value="retained">Retained</option><option value="lost">Not Retained</option>
+    </select></div>
+    <div class="form-group"><label class="form-label">Notes</label><textarea class="form-input form-textarea" id="move-stage-notes" placeholder="Reason or notes..." style="min-height:65px;"></textarea></div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-move-stage')">Cancel</button><button class="btn btn-gold" onclick="confirmMoveStage()">Move Lead</button></div>
+  </div>
+</div>
+
+<!-- ══ MODAL: AI DOCUMENT GENERATOR ══ -->
+<div class="overlay" id="modal-ai-doc">
+  <div class="modal modal-fullscreen">
+    <button class="modal-close" onclick="closeModal('modal-ai-doc')">✕</button>
+    <h2>AI Document Generator</h2>
+    <p class="sub" id="ai-doc-sub">Select a document to generate from this intake's data.</p>
+    <div id="ai-doc-picker">
+      <div class="doc-type-grid">
+        <button class="doc-type-btn" onclick="generateDocument('retainer')"><div class="dtb-icon">📄</div><div class="dtb-title">Engagement / Retainer Agreement</div><div class="dtb-desc">Full retainer with fee terms, scope, and client acknowledgments</div></button>
+        <button class="doc-type-btn" onclick="generateDocument('summary')"><div class="dtb-icon">⚖</div><div class="dtb-title">Attorney Case Summary</div><div class="dtb-desc">Internal memo for the attorney reviewing this case</div></button>
+        <button class="doc-type-btn" onclick="generateDocument('welcome')"><div class="dtb-icon">✉</div><div class="dtb-title">Client Welcome Letter</div><div class="dtb-desc">Professional welcome letter with next steps for the client</div></button>
+        <button class="doc-type-btn" onclick="generateDocument('demand')"><div class="dtb-icon">📋</div><div class="dtb-title">Case Intake Report</div><div class="dtb-desc">Formatted intake summary for the case file</div></button>
+      </div>
+    </div>
+    <div id="ai-doc-output" style="display:none;">
+      <div class="doc-toolbar">
+        <button class="btn btn-outline btn-sm" onclick="showDocPicker()">← Back</button>
+        <button class="btn btn-outline btn-sm" onclick="printDoc()">🖨 Print</button>
+        <button class="btn btn-sm btn-gold" onclick="downloadDoc()">⬇ Download .txt</button>
+        <span style="margin-left:auto;font-size:11.5px;color:var(--text-muted);" id="ai-doc-meta"></span>
+      </div>
+      <div class="doc-viewer" id="ai-doc-content"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: E-SIGNATURE PAD ══ -->
+<div class="overlay" id="modal-signature">
+  <div class="modal" style="width:520px;">
+    <button class="modal-close" onclick="closeModal('modal-signature')">✕</button>
+    <h2>Client Signature</h2>
+    <p class="sub" id="sig-client-name">Sign to acknowledge the retainer agreement.</p>
+    <div style="margin-bottom:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+        <label class="form-label">Sign below with mouse or finger</label>
+        <button class="btn btn-xs btn-outline" onclick="clearSig()">Clear</button>
+      </div>
+      <div class="sig-canvas-wrap">
+        <canvas id="sig-canvas" width="800" height="200"></canvas>
+      </div>
+      <div style="font-size:11px;color:var(--text-muted);">By signing, the client acknowledges receipt and acceptance of the engagement terms.</div>
+    </div>
+    <div class="form-group" style="margin-bottom:14px;">
+      <label class="form-label">Signed By (Print Name)</label>
+      <input class="form-input" id="sig-print-name" placeholder="Client's printed name">
+    </div>
+    <div style="background:var(--bg);border-radius:7px;padding:10px 12px;font-size:12px;color:var(--text-secondary);margin-bottom:14px;">
+      Signed on <strong id="sig-date-display"></strong> via LexFlow CRM · IP logged for audit trail
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-signature')">Cancel</button>
+      <button class="btn btn-gold" onclick="saveSignature()">Save Signature</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: DEADLINE CALCULATOR ══ -->
+<div class="overlay" id="modal-deadlines">
+  <div class="modal" style="width:600px;">
+    <button class="modal-close" onclick="closeModal('modal-deadlines')">✕</button>
+    <h2>Legal Deadline Calculator</h2>
+    <p class="sub" id="dl-client-name">Auto-calculated deadlines based on arrest date and charge type.</p>
+    <div id="dl-list"></div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-deadlines')">Close</button>
+      <button class="btn btn-gold" onclick="addAllDeadlinesToTasks()">Add All to Tasks</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────
+// STATE & PERSISTENCE
+// ─────────────────────────────────────────────
+const STORAGE_KEY = 'lexflow_v2';
+let selectedLeadId = null;
+let calWeekOffset = 0;
+let activeIntakeId = null;
+let taskFilter = 'all';
+let movingStageLead = null;
+
+const STAGES = ['new','scheduled','intake','retained','lost'];
+const STAGE_LABELS = {new:'New Lead',scheduled:'Appt. Scheduled',intake:'Intake Completed',retained:'Retained',lost:'Not Retained'};
+const STAGE_COLORS = {
+  new:{bg:'#FEF3C7',title:'#92400E',count:'#FDE68A'},
+  scheduled:{bg:'#DBEAFE',title:'#1E40AF',count:'#BFDBFE'},
+  intake:{bg:'#EDE9FE',title:'#5B21B6',count:'#DDD6FE'},
+  retained:{bg:'#DCFCE7',title:'#14532D',count:'#BBF7D0'},
+  lost:{bg:'#FEE2E2',title:'#7F1D1D',count:'#FECACA'}
+};
+const AREA_TAGS = {'Criminal Defense':'tag-cd','DWI':'tag-dwi','Drug Charges':'tag-drug','Personal Injury':'tag-pi','Family Law':'tag-fam'};
+const STATUS_PILLS = {new:'sp-new',scheduled:'sp-sched',intake:'sp-intake',retained:'sp-retained',lost:'sp-lost'};
+
+function defaultState() {
+  const now = new Date();
+  const today = fmt(now);
+  const y = now.getFullYear(), m = now.getMonth(), d = now.getDate();
+  const d1 = fmt(new Date(y,m,d-6)), d2 = fmt(new Date(y,m,d-4)), d3 = fmt(new Date(y,m,d-1));
+
+  const leads = [
+    {id:'l1',first:'Elena',last:'Vargas',phone:'(214) 555-0177',email:'e.vargas@email.com',source:'Google Ads',area:'DWI',notes:'DWI 2nd offense. Very concerned about license.',stage:'retained',createdAt:d1,lastContact:today,assignedTo:'Maria Santos',causeNum:'F-2026-00741-C'},
+    {id:'l2',first:'Carlos',last:'Reyes',phone:'(214) 555-0192',email:'c.reyes@email.com',source:'Referral',area:'Criminal Defense',notes:'DWI + Assault. CDL driver.',stage:'intake',createdAt:d2,lastContact:today,assignedTo:'Maria Santos',causeNum:'F-2026-00784-D'},
+    {id:'l3',first:'James',last:'Thornton',phone:'(817) 555-0241',email:'j.thornton@email.com',source:'Website',area:'Criminal Defense',notes:'Assault charges. Prior record.',stage:'intake',createdAt:d1,lastContact:d1,assignedTo:'Maria Santos',causeNum:'F-2026-00719-B'},
+    {id:'l4',first:'Linda',last:'Morrison',phone:'(469) 555-0183',email:'l.morrison@email.com',source:'Google Ads',area:'DWI',notes:'First DWI. Scared. Has young children.',stage:'scheduled',createdAt:d3,lastContact:d3,assignedTo:'Maria Santos',causeNum:''},
+    {id:'l5',first:'David',last:'Kwon',phone:'(972) 555-0214',email:'d.kwon@email.com',source:'Social Media',area:'Drug Charges',notes:'Possession charge. College student.',stage:'scheduled',createdAt:d3,lastContact:today,assignedTo:'Maria Santos',causeNum:'F-2026-00655-A'},
+    {id:'l6',first:'Sandra',last:'Cruz',phone:'(817) 555-0301',email:'s.cruz@email.com',source:'Referral',area:'Personal Injury',notes:'Car accident victim.',stage:'new',createdAt:today,lastContact:today,assignedTo:'Maria Santos',causeNum:''},
+    {id:'l7',first:'Marcus',last:'Williams',phone:'(214) 555-0318',email:'m.williams@email.com',source:'Social Media',area:'Criminal Defense',notes:'Theft charge.',stage:'new',createdAt:d2,lastContact:d2,assignedTo:'Maria Santos',causeNum:''},
+    {id:'l8',first:'Patricia',last:'Monroe',phone:'(972) 555-0428',email:'p.monroe@email.com',source:'Referral',area:'Drug Charges',notes:'Drug trafficking. Serious case.',stage:'retained',createdAt:d1,lastContact:today,assignedTo:'Maria Santos',causeNum:'F-2026-00590-F'},
+  ];
+  const t = (h,min=0)=>`${String(h).padStart(2,'0')}:${String(min).padStart(2,'0')}`;
+  const appointments = [
+    {id:'a1',leadId:'l4',date:today,time:t(13),type:'Intake',format:'In-Person',status:'Confirmed',notes:'First consultation.'},
+    {id:'a2',leadId:'l5',date:today,time:t(15,30),type:'Intake',format:'Video',status:'Confirmed',notes:''},
+    {id:'a3',leadId:'l1',date:fmt(new Date(y,m,d-1)),time:t(9),type:'Consultation',format:'Phone',status:'Completed',notes:'Retainer signed.'},
+    {id:'a4',leadId:'l2',date:today,time:t(10,30),type:'Intake',format:'In-Person',status:'Confirmed',notes:'CDL implications.'},
+    {id:'a5',leadId:'l3',date:fmt(new Date(y,m,d+1)),time:t(9),type:'Consultation',format:'In-Person',status:'Pending',notes:''},
+  ];
+  const tasks = [
+    {id:'t1',title:'Follow up with James Thornton — no contact in 6 days',leadId:'l3',type:'📞 Call',priority:'High',assignedTo:'Maria Santos',due:d2,done:false,createdAt:d2},
+    {id:'t2',title:'Confirm appointment for Linda Morrison — today 1:00 PM',leadId:'l4',type:'💬 Text',priority:'Medium',assignedTo:'AI System',due:today,done:false,createdAt:today},
+    {id:'t3',title:'Send intake summary to Atty. Hoffman — David Kwon file',leadId:'l5',type:'📧 Email',priority:'Medium',assignedTo:'Maria Santos',due:today,done:false,createdAt:today},
+    {id:'t4',title:'Request dashcam footage — Carlos Reyes DWI',leadId:'l2',type:'⚖ Legal',priority:'High',assignedTo:'R. Hoffman',due:today,done:false,createdAt:today},
+    {id:'t5',title:'Complete financial agreement — Carlos Reyes retainer',leadId:'l2',type:'📋 Form',priority:'High',assignedTo:'Maria Santos',due:today,done:false,createdAt:today},
+    {id:'t6',title:'Schedule AI follow-up — Sandra Cruz 3-day check-in',leadId:'l6',type:'🤖 AI Outreach',priority:'Low',assignedTo:'AI System',due:fmt(new Date(y,m,d+2)),done:false,createdAt:today},
+    {id:'t7',title:'Send retainer agreement to Elena Vargas for signature',leadId:'l1',type:'📄 Document',priority:'High',assignedTo:'Maria Santos',due:d3,done:true,createdAt:d3},
+  ];
+  const intakes = [
+    {id:'i1',leadId:'l2',appointmentId:'a4',status:'in-progress',createdAt:today,
+     bio:{first:'Carlos',last:'Reyes',dob:'1989-04-14',phone:'(214) 555-0192',email:'c.reyes@email.com',street:'4821 Elm Fork Drive',city:'Dallas',state:'TX',zip:'75217'},
+     caseInfo:{causeNum:'F-2026-00784-D',jurisdiction:'Dallas County, TX',arrestDate:'2026-03-18',charges:'DWI 2nd Offense, Assault',bondType:'Surety Bond',bondPaid:'yes',bondAmount:'$5,000',priorArrests:[{date:'2022-08-05',charge:'DWI 1st Offense',resolution:'Conviction, Probation'}],hearingsOccurred:'yes',nextHearing:'2026-05-14',hearingNotes:'Arraignment Mar 22. Plea: Not Guilty. Bond $5,000. Judge Thompson, 194th District Court.',narrative:"Client states he was driving home from a birthday party on March 18 around 11:45 PM on I-635. Was pulled over at LBJ/Skillman exit for alleged swerving. Client admits to 2-3 beers but states he felt sober. Field sobriety tests administered. Failed HGN. Breathalyzer 0.10 BAC."},
+     financialAgreement:{feeType:'Flat Fee',totalFee:'$4,500',retainer:'$1,500',paymentPlan:'yes',installments:'3',perInstallment:'$1,000',firstDue:'2026-04-15',paymentMethod:'Cash + Zelle',agreementDate:today},
+     specialistNotes:"Client was cooperative and forthcoming. Appeared nervous. Mentioned CDL and worried about job. Possible urgency around employment implications. Mother was present, offered to assist with payment.",
+     attorneyNotes:"CDL implications are significant. Prior DWI conviction will trigger enhanced penalties. Need dashcam footage ASAP. BAC 0.10 marginally above limit; HGN may be challengeable. Confirm ALR hearing within 15-day window."},
+  ];
+  const aiLog = [
+    {id:'ai1',leadId:'l4',type:'📞 Inbound Call',time:new Date(Date.now()-3600000*5).toISOString(),outcome:'Reached',result:'Appointment booked'},
+    {id:'ai2',leadId:'l4',type:'💬 Confirm Text',time:new Date(Date.now()-3600000*4.8).toISOString(),outcome:'Delivered',result:'Appt confirmed'},
+    {id:'ai3',leadId:'l3',type:'📞 Follow-Up Call',time:new Date(Date.now()-3600000*48).toISOString(),outcome:'No Answer',result:'Voicemail left'},
+    {id:'ai4',leadId:'l5',type:'📞 Inbound Call',time:new Date(Date.now()-3600000*20).toISOString(),outcome:'Reached',result:'Appointment booked'},
+  ];
+  const activity = [
+    {text:'<strong>Elena Vargas</strong> signed the retainer — $3,500 flat fee',time:'Today 10:14 AM',color:'var(--green)'},
+    {text:'<strong>AI Receptionist</strong> scheduled appointment for <strong>Carlos Reyes</strong>',time:'Today 9:42 AM',color:'var(--blue)'},
+    {text:'<strong>Attorney notes</strong> added for intake: <strong>David Kwon</strong>',time:'Today 9:15 AM',color:'var(--purple)'},
+    {text:'<strong>Follow-up alert</strong> for <strong>James Thornton</strong> — 6 days no contact',time:'Today 8:00 AM',color:'var(--amber)'},
+  ];
+  return {leads,appointments,tasks,intakes,aiLog,activity,nextId:100};
+}
+
+function loadState(){
+  try{const s=localStorage.getItem(STORAGE_KEY);if(s)return JSON.parse(s);}catch(e){}
+  return defaultState();
+}
+function saveState(){localStorage.setItem(STORAGE_KEY,JSON.stringify(S));}
+function resetState(){localStorage.removeItem(STORAGE_KEY);S=defaultState();saveState();renderAll();toast('App reset to demo data','success');}
+let S = loadState();
+
+// ─────────────────────────────────────────────
+// UTILITIES
+// ─────────────────────────────────────────────
+function uid(){return 'x'+(++S.nextId);}
+function fmt(d){const dd=d instanceof Date?d:new Date(d);return dd.getFullYear()+'-'+String(dd.getMonth()+1).padStart(2,'0')+'-'+String(dd.getDate()).padStart(2,'0');}
+function today(){return fmt(new Date());}
+function fmtDisplay(d){if(!d)return'—';const dd=new Date(d+'T00:00:00');return dd.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
+function fmtTime(t){if(!t)return'';const[h,m]=t.split(':');const hh=+h%12||12;return`${hh}:${m} ${+h<12?'AM':'PM'}`;}
+function daysDiff(d){if(!d)return 999;return Math.floor((Date.now()-new Date(d+'T00:00:00').getTime())/86400000);}
+function daysAgoLabel(d){const n=daysDiff(d);if(n===0)return{text:'Today',cls:'days-ok'};if(n===1)return{text:'Yesterday',cls:'days-warn'};if(n>=3)return{text:n+'d ago',cls:'days-danger'};return{text:n+'d ago',cls:'days-warn'};}
+function leadName(l){return l?`${l.first} ${l.last}`:'Unknown';}
+function getLead(id){return S.leads.find(l=>l.id===id);}
+function getIntake(id){return S.intakes.find(i=>i.id===id);}
+function tagHtml(area){const cls=AREA_TAGS[area]||'tag-cd';return`<span class="tag ${cls}">${area}</span>`;}
+function stageHtml(stage){return`<span class="status-pill ${STATUS_PILLS[stage]||'sp-new'}">${STAGE_LABELS[stage]||stage}</span>`;}
+function priorityHtml(p){const cls=p==='High'?'priority-high':p==='Medium'?'priority-med':'priority-low';return`<span class="tag ${cls}" style="font-size:10px;">${p}</span>`;}
+
+function toast(msg,type=''){
+  const w=document.getElementById('toast-wrap');
+  const t=document.createElement('div');
+  t.className='toast '+(type||'');
+  t.textContent=msg;
+  w.appendChild(t);
+  setTimeout(()=>t.remove(),3200);
+}
+
+// ─────────────────────────────────────────────
+// NAVIGATION
+// ─────────────────────────────────────────────
+function switchView(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  const el=document.getElementById('view-'+id);
+  if(el)el.classList.add('active');
+  const ni=document.querySelector(`[data-view="${id}"]`);
+  if(ni)ni.classList.add('active');
+  if(id==='dashboard')renderDashboard();
+  if(id==='leads')renderLeads();
+  if(id==='calendar')renderCalendar();
+  if(id==='intake')showIntakeList();
+  if(id==='tasks')renderTasks();
+  if(id==='clients')renderClients();
+  if(id==='ai')renderAI();
+}
+document.querySelectorAll('.nav-item[data-view]').forEach(el=>{
+  el.addEventListener('click',()=>switchView(el.dataset.view));
+});
+function renderAll(){renderDashboard();renderBadges();}
+function renderBadges(){
+  document.getElementById('nb-leads').textContent=S.leads.filter(l=>l.stage!=='retained'&&l.stage!=='lost').length;
+  document.getElementById('nb-intake').textContent=S.leads.filter(l=>l.stage==='intake').length;
+  document.getElementById('nb-tasks').textContent=S.tasks.filter(t=>!t.done).length;
+}
+
+// ─────────────────────────────────────────────
+// MODAL
+// ─────────────────────────────────────────────
+function openModal(id){
+  if(id==='modal-add-appt'){
+    const sel=document.getElementById('ap-lead');
+    sel.innerHTML=S.leads.map(l=>`<option value="${l.id}">${leadName(l)}</option>`).join('');
+    document.getElementById('ap-date').value=today();
+  }
+  if(id==='modal-add-task'){
+    const sel=document.getElementById('at-lead');
+    sel.innerHTML='<option value="">— None —</option>'+S.leads.map(l=>`<option value="${l.id}">${leadName(l)}</option>`).join('');
+    document.getElementById('at-due').value=today();
+  }
+  if(id==='modal-add-lead'){
+    ['al-first','al-last','al-phone','al-email','al-notes'].forEach(i=>{const el=document.getElementById(i);if(el)el.value='';});
+  }
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+
+// ─────────────────────────────────────────────
+// DASHBOARD
+// ─────────────────────────────────────────────
+function renderDashboard(){
+  const now=new Date();
+  document.getElementById('dash-date').textContent=now.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+  document.getElementById('dash-appt-date').textContent=now.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  const td=today();
+  const active=S.leads.filter(l=>l.stage!=='lost');
+  const retained=S.leads.filter(l=>l.stage==='retained');
+  const apptToday=S.appointments.filter(a=>a.date===td);
+  const tasksOpen=S.tasks.filter(t=>!t.done);
+  const tasksDueToday=tasksOpen.filter(t=>t.due===td);
+  const intakePending=S.leads.filter(l=>l.stage==='intake');
+
+  document.getElementById('kpi-grid').innerHTML=`
+    <div class="kpi-card kpi-gold"><div class="kpi-label">Active Leads</div><div class="kpi-value">${active.length}</div><div class="kpi-sub">${S.leads.length} total in system</div></div>
+    <div class="kpi-card kpi-green"><div class="kpi-label">Retained</div><div class="kpi-value">${retained.length}</div><div class="kpi-sub up">This month</div></div>
+    <div class="kpi-card kpi-blue"><div class="kpi-label">Appointments Today</div><div class="kpi-value">${apptToday.length}</div><div class="kpi-sub">${apptToday.filter(a=>a.status==='Confirmed').length} confirmed</div></div>
+    <div class="kpi-card kpi-red"><div class="kpi-label">Tasks Due Today</div><div class="kpi-value">${tasksDueToday.length}</div><div class="kpi-sub ${tasksDueToday.length>0?'warn':''}">${tasksOpen.filter(t=>t.due<td).length} overdue</div></div>
+    <div class="kpi-card kpi-purple"><div class="kpi-label">Intakes Pending</div><div class="kpi-value">${intakePending.length}</div><div class="kpi-sub">Awaiting review</div></div>
+  `;
+
+  // Stale leads
+  const stale=S.leads.filter(l=>l.stage!=='retained'&&l.stage!=='lost'&&daysDiff(l.lastContact)>=3);
+  const staleBody=document.querySelector('#dash-stale-table tbody');
+  if(stale.length===0){
+    staleBody.innerHTML='<tr><td colspan="4" style="padding:16px 18px;color:var(--text-muted);font-size:13px;">No leads need immediate attention.</td></tr>';
+  } else {
+    staleBody.innerHTML=stale.map(l=>{
+      const da=daysAgoLabel(l.lastContact);
+      return`<tr>
+        <td style="padding:10px 14px;font-weight:600;">${leadName(l)}</td>
+        <td style="padding:10px 14px;">${tagHtml(l.area)}</td>
+        <td style="padding:10px 14px;font-weight:600;color:${da.cls==='days-danger'?'var(--red)':'var(--amber)'};">${da.text}</td>
+        <td style="padding:10px 14px;"><button class="btn btn-sm btn-gold" onclick="logAIOutreach('${l.id}')">AI Follow-Up</button></td>
+      </tr>`;
+    }).join('');
+  }
+
+  // Activity
+  const actEl=document.getElementById('dash-activity');
+  actEl.innerHTML=S.activity.slice(0,5).map(a=>`
+    <div class="activity-item">
+      <div class="act-dot" style="background:${a.color};"></div>
+      <div><div class="act-text">${a.text}</div><div class="act-time">${a.time}</div></div>
+    </div>`).join('');
+
+  // Today's appts
+  const apptEl=document.getElementById('dash-appts');
+  if(apptToday.length===0){
+    apptEl.innerHTML='<div style="color:var(--text-muted);font-size:13px;padding:8px 0;">No appointments today.</div>';
+  } else {
+    apptEl.innerHTML=apptToday.sort((a,b)=>a.time>b.time?1:-1).map(a=>{
+      const l=getLead(a.leadId);
+      const sc=a.status==='Confirmed'?'var(--green)':a.status==='Pending'?'var(--amber)':'var(--blue)';
+      const sbg=a.status==='Confirmed'?'var(--green-pale)':a.status==='Pending'?'var(--amber-pale)':'var(--blue-pale)';
+      return`<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);">
+        <div style="font-size:11.5px;font-weight:600;color:var(--navy);background:var(--bg);padding:4px 8px;border-radius:5px;min-width:70px;text-align:center;">${fmtTime(a.time)}</div>
+        <div style="flex:1;"><div style="font-size:13px;font-weight:500;">${l?leadName(l):'Unknown'}</div><div style="font-size:11.5px;color:var(--text-secondary);">${a.type} · ${a.format}</div></div>
+        <span style="font-size:10.5px;font-weight:600;padding:3px 8px;border-radius:10px;background:${sbg};color:${sc};">${a.status}</span>
+      </div>`;
+    }).join('');
+  }
+
+  // Pipeline snap
+  const counts={};STAGES.forEach(s=>counts[s]=S.leads.filter(l=>l.stage===s).length);
+  const maxC=Math.max(...Object.values(counts),1);
+  const total=S.leads.filter(l=>l.stage!=='lost').length||1;
+  const retainedCount=counts.retained||0;
+  const convRate=total>0?Math.round((retainedCount/total)*100):0;
+  const retainedLeads=S.leads.filter(l=>l.stage==='retained');
+  document.getElementById('dash-pipeline-snap').innerHTML=`
+    ${STAGES.map(s=>`<div style="display:flex;align-items:center;gap:9px;margin-bottom:7px;">
+      <div style="font-size:11.5px;width:130px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${STAGE_LABELS[s]}</div>
+      <div style="flex:1;background:var(--bg);border-radius:4px;height:7px;overflow:hidden;"><div style="width:${Math.round((counts[s]/maxC)*100)}%;background:${STAGE_COLORS[s].title};height:100%;border-radius:4px;"></div></div>
+      <div style="font-size:11.5px;font-weight:600;width:16px;text-align:right;">${counts[s]}</div>
+    </div>`).join('')}
+    <div style="margin-top:12px;padding-top:11px;border-top:1px solid var(--border);display:flex;justify-content:space-between;">
+      <div><div style="font-size:10.5px;color:var(--text-muted);">Conversion Rate</div><div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--green);">${convRate}%</div></div>
+      <div style="text-align:right;"><div style="font-size:10.5px;color:var(--text-muted);">Total Clients</div><div style="font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:600;color:var(--navy);">${retainedLeads.length}</div></div>
+    </div>`;
+  renderBadges();
+}
+
+// ─────────────────────────────────────────────
+// LEADS PIPELINE
+// ─────────────────────────────────────────────
+function renderLeads(){
+  const q=(document.getElementById('lead-search')||{value:''}).value.toLowerCase();
+  let leads=S.leads.filter(l=>!q||(leadName(l)+l.phone+l.area+l.notes).toLowerCase().includes(q));
+  document.getElementById('leads-sub').textContent=`${S.leads.length} leads total`;
+  const board=document.getElementById('pipeline-board');
+  board.innerHTML=STAGES.map(stage=>{
+    const cols=leads.filter(l=>l.stage===stage);
+    const c=STAGE_COLORS[stage];
+    return`<div class="pipeline-col">
+      <div class="col-header" style="background:${c.bg};">
+        <span class="col-title" style="color:${c.title};">${STAGE_LABELS[stage]}</span>
+        <span class="col-count" style="background:${c.count};color:${c.title};">${cols.length}</span>
+      </div>
+      <div class="col-body">
+        ${cols.length?cols.map(l=>leadCardHtml(l)).join(''):'<div style="font-size:12px;color:var(--text-muted);text-align:center;padding:16px 0;">No leads here</div>'}
+      </div>
+    </div>`;
+  }).join('');
+  board.querySelectorAll('.lead-card').forEach(el=>{
+    el.addEventListener('click',()=>selectLead(el.dataset.lid));
+  });
+}
+
+function leadCardHtml(l){
+  const da=daysAgoLabel(l.lastContact);
+  return`<div class="lead-card${selectedLeadId===l.id?' selected':''}" data-lid="${l.id}">
+    <div class="lc-name">${leadName(l)}</div>
+    <div class="lc-meta">
+      <span>📞 ${l.phone}</span>
+      <span>📥 ${l.source}</span>
+    </div>
+    <div class="lc-footer">
+      ${tagHtml(l.area)}
+      <span class="days-ago ${da.cls}">${da.text}</span>
+    </div>
+  </div>`;
+}
+
+function selectLead(id){
+  selectedLeadId=id;
+  const l=getLead(id);
+  if(!l)return;
+  renderLeads();
+  const panel=document.getElementById('lead-detail-panel');
+  const content=document.getElementById('lead-detail-content');
+  panel.style.display='block';
+  content.innerHTML=leadDetailHtml(l);
+}
+
+function leadDetailHtml(l){
+  const appts=S.appointments.filter(a=>a.leadId===l.id);
+  const tasks=S.tasks.filter(t=>t.leadId===l.id);
+  const intake=S.intakes.find(i=>i.leadId===l.id);
+  const da=daysAgoLabel(l.lastContact);
+  return`<div style="padding:16px;">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;">
+      <div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:600;">${leadName(l)}</div>
+        <div style="margin-top:4px;">${stageHtml(l.stage)}</div>
+      </div>
+      <button class="btn btn-xs btn-outline" onclick="closeLeadPanel()">✕</button>
+    </div>
+    <div style="font-size:12px;color:var(--text-secondary);display:flex;flex-direction:column;gap:4px;margin-bottom:14px;">
+      <div>📞 ${l.phone}</div>
+      ${l.email?`<div>✉ ${l.email}</div>`:''}
+      <div>📥 ${l.source} · ${tagHtml(l.area)}</div>
+      ${l.causeNum?`<div>⚖ ${l.causeNum}</div>`:''}
+      <div>Last contact: <span class="${da.cls}" style="font-weight:600;">${da.text}</span></div>
+    </div>
+    ${l.notes?`<div style="background:var(--bg);border-radius:7px;padding:10px 12px;font-size:12.5px;color:var(--text-secondary);margin-bottom:14px;">${l.notes}</div>`:''}
+    <div style="display:flex;flex-direction:column;gap:7px;margin-bottom:14px;">
+      <button class="btn btn-sm btn-primary" onclick="openMoveStage('${l.id}')">Move Stage</button>
+      <button class="btn btn-sm btn-outline" onclick="openModalForLead('modal-add-appt','${l.id}')">📅 Schedule Appointment</button>
+      <button class="btn btn-sm btn-outline" onclick="openModalForLead('modal-add-task','${l.id}')">✅ Add Task</button>
+      ${intake?`<button class="btn btn-sm btn-gold" onclick="openIntake('${intake.id}')">📋 Open Intake</button>`:`<button class="btn btn-sm btn-outline" onclick="createIntakeForLead('${l.id}')">📋 Start Intake</button>`}
+    </div>
+    ${appts.length?`<div style="margin-bottom:12px;"><div style="font-size:10.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:7px;">Appointments</div>${appts.map(a=>`<div style="font-size:12px;padding:7px 9px;background:var(--bg);border-radius:6px;margin-bottom:5px;">${fmtDisplay(a.date)} ${fmtTime(a.time)} · ${a.type} · <span style="font-weight:600;">${a.status}</span></div>`).join('')}</div>`:''}
+    ${tasks.length?`<div><div style="font-size:10.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:7px;">Tasks</div>${tasks.map(t=>`<div style="font-size:12px;padding:7px 9px;background:var(--bg);border-radius:6px;margin-bottom:5px;${t.done?'opacity:.5;text-decoration:line-through;':''}">${t.title}</div>`).join('')}</div>`:''}
+    <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border);">
+      <button class="btn btn-xs btn-danger" onclick="logAIOutreach('${l.id}');closeLeadPanel()">🤖 AI Follow-Up Call</button>
+    </div>
+  </div>`;
+}
+
+function closeLeadPanel(){selectedLeadId=null;document.getElementById('lead-detail-panel').style.display='none';renderLeads();}
+function openModalForLead(mid,lid){
+  openModal(mid);
+  if(mid==='modal-add-appt'){document.getElementById('ap-lead').value=lid;}
+  if(mid==='modal-add-task'){document.getElementById('at-lead').value=lid;}
+}
+function openMoveStage(lid){
+  movingStageLead=lid;
+  const l=getLead(lid);
+  document.getElementById('move-stage-sub').textContent=`Moving: ${leadName(l)}`;
+  document.getElementById('move-stage-select').value=l.stage;
+  document.getElementById('move-stage-notes').value='';
+  openModal('modal-move-stage');
+}
+function confirmMoveStage(){
+  const newStage=document.getElementById('move-stage-select').value;
+  const notes=document.getElementById('move-stage-notes').value;
+  const l=getLead(movingStageLead);
+  if(!l)return;
+  const old=l.stage;
+  l.stage=newStage;
+  l.lastContact=today();
+  if(notes){
+    S.activity.unshift({text:`<strong>${leadName(l)}</strong> moved from ${STAGE_LABELS[old]} → ${STAGE_LABELS[newStage]}${notes?': '+notes:''}`,time:'Just now',color:'var(--gold)'});
+  }
+  saveState();closeModal('modal-move-stage');selectedLeadId=null;
+  document.getElementById('lead-detail-panel').style.display='none';
+  renderLeads();renderBadges();
+  toast(`${leadName(l)} moved to ${STAGE_LABELS[newStage]}`,'success');
+}
+
+// ─────────────────────────────────────────────
+// LEAD CRUD
+// ─────────────────────────────────────────────
+function addLead(){
+  const first=document.getElementById('al-first').value.trim();
+  const last=document.getElementById('al-last').value.trim();
+  const phone=document.getElementById('al-phone').value.trim();
+  if(!first||!last||!phone){toast('Please fill in required fields.','error');return;}
+  const l={id:uid(),first,last,phone,email:document.getElementById('al-email').value.trim(),source:document.getElementById('al-source').value,area:document.getElementById('al-area').value,notes:document.getElementById('al-notes').value.trim(),stage:'new',createdAt:today(),lastContact:today(),assignedTo:'Maria Santos',causeNum:''};
+  S.leads.push(l);
+  S.activity.unshift({text:`<strong>New Lead</strong> added: <strong>${leadName(l)}</strong> (${l.area})`,time:'Just now',color:'var(--gold)'});
+  saveState();closeModal('modal-add-lead');renderLeads();renderBadges();
+  toast(`${leadName(l)} added to pipeline`,'success');
+}
+
+// ─────────────────────────────────────────────
+// APPOINTMENTS
+// ─────────────────────────────────────────────
+function addAppointment(){
+  const lid=document.getElementById('ap-lead').value;
+  const date=document.getElementById('ap-date').value;
+  const time=document.getElementById('ap-time').value;
+  if(!lid||!date||!time){toast('Please fill all required fields.','error');return;}
+  const a={id:uid(),leadId:lid,date,time,type:document.getElementById('ap-type').value,format:document.getElementById('ap-format').value,status:'Pending',notes:document.getElementById('ap-notes').value.trim()};
+  S.appointments.push(a);
+  const l=getLead(lid);
+  if(l){l.stage='scheduled';l.lastContact=today();}
+  S.activity.unshift({text:`<strong>Appointment</strong> scheduled for <strong>${l?leadName(l):'client'}</strong> on ${fmtDisplay(date)}`,time:'Just now',color:'var(--blue)'});
+  saveState();closeModal('modal-add-appt');renderCalendar();renderLeads();renderBadges();
+  toast('Appointment booked. Confirmation text queued.','success');
+}
+
+// ─────────────────────────────────────────────
+// CALENDAR
+// ─────────────────────────────────────────────
+const HOURS=[8,9,10,11,12,13,14,15,16,17];
+const HR_LABELS=['8 AM','9 AM','10 AM','11 AM','12 PM','1 PM','2 PM','3 PM','4 PM','5 PM'];
+const DAYS_SHORT=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+function getWeekStart(offset){
+  const d=new Date();d.setDate(d.getDate()-d.getDay()+offset*7);d.setHours(0,0,0,0);return d;
+}
+function calNav(dir){calWeekOffset+=dir;renderCalendar();}
+function calToday(){calWeekOffset=0;renderCalendar();}
+function renderCalendar(){
+  const ws=getWeekStart(calWeekOffset);
+  const days=Array.from({length:7},(_,i)=>{const d=new Date(ws);d.setDate(d.getDate()+i);return d;});
+  const td=today();
+  const startStr=days[0].toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  const endStr=days[6].toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  document.getElementById('cal-week-label').textContent=`${startStr} – ${endStr}`;
+  const wrap=document.getElementById('week-wrap');
+  const evClass={Intake:'ev-intake',Consultation:'ev-consult','Follow-Up':'ev-followup',Hearing:'ev-hearing'};
+  wrap.innerHTML=`
+    <div class="week-head-row">
+      <div class="wh-empty"></div>
+      ${days.map(d=>`<div class="wh-day${fmt(d)===td?' today':''}"><div class="dn">${DAYS_SHORT[d.getDay()]}</div><div class="dd">${d.getDate()}</div></div>`).join('')}
+    </div>
+    <div class="week-body">
+      ${HOURS.map((h,hi)=>`
+        <div class="time-gutter"><div class="time-row">${HR_LABELS[hi]}</div></div>
+        ${days.map(d=>{
+          const df=fmt(d);
+          const ev=S.appointments.filter(a=>a.date===df&&+a.time.split(':')[0]===h);
+          return`<div class="day-slot">${ev.map(a=>{
+            const l=getLead(a.leadId);
+            return`<div class="cal-event ${evClass[a.type]||'ev-consult'}" onclick="showApptDetail('${a.id}')">${l?l.first+' '+l.last:'Client'}<br>${fmtTime(a.time)}</div>`;
+          }).join('')}</div>`;
+        }).join('')}
+      `).join('')}
+    </div>`;
+}
+function showApptDetail(id){
+  const a=S.appointments.find(x=>x.id===id);if(!a)return;
+  const l=getLead(a.leadId);
+  const statusOptions=['Pending','Confirmed','Completed','No Show'];
+  const html=`<h2>${a.type}: ${l?leadName(l):'Client'}</h2><p class="sub">${fmtDisplay(a.date)} at ${fmtTime(a.time)}</p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:14px;">
+      <div><span style="font-size:11px;font-weight:600;color:var(--text-muted);">FORMAT</span><br>${a.format}</div>
+      <div><span style="font-size:11px;font-weight:600;color:var(--text-muted);">STATUS</span><br>
+        <select class="form-input form-select" id="appt-status-sel" style="margin-top:4px;">${statusOptions.map(s=>`<option${s===a.status?' selected':''}>${s}</option>`).join('')}</select>
+      </div>
+      ${a.notes?`<div><span style="font-size:11px;font-weight:600;color:var(--text-muted);">NOTES</span><br><span style="font-size:13px;">${a.notes}</span></div>`:''}
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger" onclick="deleteAppt('${id}')">Delete</button>
+      <button class="btn btn-outline" onclick="closeModal('modal-lead-detail')">Close</button>
+      <button class="btn btn-gold" onclick="saveApptStatus('${id}')">Save Status</button>
+    </div>`;
+  document.getElementById('modal-lead-detail-content').innerHTML=html;
+  openModal('modal-lead-detail');
+}
+function saveApptStatus(id){
+  const a=S.appointments.find(x=>x.id===id);
+  if(a)a.status=document.getElementById('appt-status-sel').value;
+  saveState();closeModal('modal-lead-detail');renderCalendar();toast('Appointment updated','success');
+}
+function deleteAppt(id){
+  S.appointments=S.appointments.filter(a=>a.id!==id);
+  saveState();closeModal('modal-lead-detail');renderCalendar();toast('Appointment deleted');
+}
+
+// ─────────────────────────────────────────────
+// INTAKE
+// ─────────────────────────────────────────────
+function showIntakeList(){
+  activeIntakeId=null;
+  const area=document.getElementById('intake-area');
+  if(S.intakes.length===0){
+    area.innerHTML=`<div class="empty-state"><div style="font-size:32px;">📋</div><p>No intakes yet. Schedule an appointment or click "New Intake" to begin.</p><button class="btn btn-gold" style="margin-top:14px;" onclick="openNewIntake()">+ New Intake</button></div>`;
+    return;
+  }
+  area.innerHTML=`<div style="display:flex;flex-direction:column;gap:10px;">
+    ${S.intakes.map(i=>{
+      const l=getLead(i.leadId);
+      const statusColors={['in-progress']:{bg:'var(--amber-pale)',color:'var(--amber)'},completed:{bg:'var(--green-pale)',color:'var(--green)'},draft:{bg:'var(--bg)',color:'var(--text-muted)'}};
+      const sc=statusColors[i.status]||statusColors.draft;
+      return`<div class="card" style="cursor:pointer;" onclick="openIntake('${i.id}')">
+        <div class="card-body" style="display:flex;align-items:center;gap:14px;">
+          <div style="flex:1;">
+            <div style="font-weight:600;font-size:14px;">${l?leadName(l):'Unknown'}</div>
+            <div style="font-size:12px;color:var(--text-secondary);margin-top:2px;">${l?l.area:''} · Intake #${i.id} · ${fmtDisplay(i.createdAt)}</div>
+          </div>
+          <span style="font-size:11px;font-weight:600;padding:4px 10px;border-radius:12px;background:${sc.bg};color:${sc.color};">${i.status.replace('-',' ').replace(/^\w/,c=>c.toUpperCase())}</span>
+          <button class="btn btn-sm btn-primary">Open →</button>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+function openIntake(id){
+  activeIntakeId=id;
+  const intake=getIntake(id);
+  if(!intake)return;
+  const l=getLead(intake.leadId);
+  renderIntakeForm(intake,l);
+}
+
+function openNewIntake(){
+  // pick first lead without intake
+  const unassigned=S.leads.filter(l=>!S.intakes.find(i=>i.leadId===l.id));
+  const html=`<h2>Start New Intake</h2><p class="sub">Select a lead to open an intake for.</p>
+    <div class="form-group" style="margin-bottom:14px;"><label class="form-label">Lead / Client</label>
+      <select class="form-input form-select" id="ni-lead">${S.leads.map(l=>`<option value="${l.id}">${leadName(l)} — ${l.area}</option>`).join('')}</select>
+    </div>
+    <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modal-lead-detail')">Cancel</button><button class="btn btn-gold" onclick="createIntakeFromModal()">Start Intake</button></div>`;
+  document.getElementById('modal-lead-detail-content').innerHTML=html;
+  openModal('modal-lead-detail');
+}
+function createIntakeFromModal(){
+  const lid=document.getElementById('ni-lead').value;
+  createIntakeForLead(lid);
+  closeModal('modal-lead-detail');
+}
+function createIntakeForLead(lid){
+  const existing=S.intakes.find(i=>i.leadId===lid);
+  if(existing){openIntake(existing.id);switchView('intake');return;}
+  const l=getLead(lid);
+  const intake={id:uid(),leadId:lid,status:'draft',createdAt:today(),
+    bio:{first:l?l.first:'',last:l?l.last:'',dob:'',phone:l?l.phone:'',email:l?l.email:'',street:'',city:'',state:'TX',zip:''},
+    caseInfo:{causeNum:l?l.causeNum||'':'',jurisdiction:'',arrestDate:'',charges:'',bondType:'Surety Bond',bondPaid:'no',bondAmount:'',priorArrests:[],hearingsOccurred:'no',nextHearing:'',hearingNotes:'',narrative:''},
+    financialAgreement:{feeType:'Flat Fee',totalFee:'',retainer:'',paymentPlan:'no',installments:'',perInstallment:'',firstDue:'',paymentMethod:'Cash',agreementDate:today()},
+    specialistNotes:'',attorneyNotes:''};
+  S.intakes.push(intake);
+  if(l){l.stage='intake';l.lastContact=today();}
+  saveState();activeIntakeId=intake.id;switchView('intake');renderIntakeForm(intake,l);renderBadges();
+  toast('Intake created','success');
+}
+
+function renderIntakeForm(intake,l){
+  const area=document.getElementById('intake-area');
+  const b=intake.bio;const c=intake.caseInfo;const f=intake.financialAgreement;
+  area.innerHTML=`
+    <div class="intake-header-bar">
+      <div>
+        <h2>${b.first||'New'} ${b.last||'Intake'}</h2>
+        <p>Intake #${intake.id} · ${l?l.area:'Criminal Defense'} · ${fmtDisplay(intake.createdAt)}</p>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <button class="btn btn-sm btn-outline" style="color:#fff;border-color:rgba(255,255,255,.3);" onclick="showIntakeList()">← All Intakes</button>
+        <span class="ib-badge">${intake.status.replace('-',' ').replace(/^\w/,x=>x.toUpperCase())}</span>
+      </div>
+    </div>
+    <div class="intake-layout">
+      <div>
+        <!-- Section 1: Bio -->
+        <div class="form-section">
+          <div class="fs-header"><div class="fs-num">1</div><h3>Biographical Information — Party Profile</h3></div>
+          <div class="fs-body">
+            <div class="form-row c3"><div class="form-group"><label class="form-label">First Name</label><input class="form-input intake-field" data-path="bio.first" value="${b.first||''}"></div><div class="form-group"><label class="form-label">Last Name</label><input class="form-input intake-field" data-path="bio.last" value="${b.last||''}"></div><div class="form-group"><label class="form-label">Date of Birth</label><input class="form-input intake-field" type="date" data-path="bio.dob" value="${b.dob||''}"></div></div>
+            <div class="form-row c2"><div class="form-group"><label class="form-label">Phone</label><input class="form-input intake-field" data-path="bio.phone" value="${b.phone||''}"></div><div class="form-group"><label class="form-label">Email</label><input class="form-input intake-field" type="email" data-path="bio.email" value="${b.email||''}"></div></div>
+            <div class="form-row"><div class="form-group"><label class="form-label">Street Address</label><input class="form-input intake-field" data-path="bio.street" value="${b.street||''}"></div></div>
+            <div class="form-row c3"><div class="form-group"><label class="form-label">City</label><input class="form-input intake-field" data-path="bio.city" value="${b.city||''}"></div><div class="form-group"><label class="form-label">State</label><input class="form-input intake-field" data-path="bio.state" value="${b.state||'TX'}"></div><div class="form-group"><label class="form-label">ZIP</label><input class="form-input intake-field" data-path="bio.zip" value="${b.zip||''}"></div></div>
+          </div>
+        </div>
+        <!-- Section 2: Case -->
+        <div class="form-section">
+          <div class="fs-header"><div class="fs-num">2</div><h3>Case Information — Criminal Defense</h3></div>
+          <div class="fs-body">
+            <div class="form-row c2"><div class="form-group"><label class="form-label">Cause Number(s)</label><input class="form-input intake-field" data-path="caseInfo.causeNum" value="${c.causeNum||''}"></div><div class="form-group"><label class="form-label">County / Jurisdiction</label><input class="form-input intake-field" data-path="caseInfo.jurisdiction" value="${c.jurisdiction||''}"></div></div>
+            <div class="form-row c3"><div class="form-group"><label class="form-label">Date of Arrest</label><input class="form-input intake-field" type="date" data-path="caseInfo.arrestDate" value="${c.arrestDate||''}"></div><div class="form-group"><label class="form-label">Charge(s)</label><input class="form-input intake-field" data-path="caseInfo.charges" value="${c.charges||''}"></div><div class="form-group"><label class="form-label">Bond Type</label><select class="form-input form-select intake-field" data-path="caseInfo.bondType"><option${c.bondType==='Surety Bond'?' selected':''}>Surety Bond</option><option${c.bondType==='Cash Bond'?' selected':''}>Cash Bond</option><option${c.bondType==='Personal Bond'?' selected':''}>Personal Bond</option><option${c.bondType==='No Bond'?' selected':''}>No Bond</option></select></div></div>
+            <div class="form-row c2"><div class="form-group"><label class="form-label">Bond Paid?</label><div class="radio-group"><label class="radio-opt"><input type="radio" name="bondPaid_${intake.id}" value="yes" ${c.bondPaid==='yes'?'checked':''}> Yes</label><label class="radio-opt"><input type="radio" name="bondPaid_${intake.id}" value="no" ${c.bondPaid==='no'?'checked':''}> No</label></div></div><div class="form-group"><label class="form-label">Bond Amount</label><input class="form-input intake-field" data-path="caseInfo.bondAmount" value="${c.bondAmount||''}" placeholder="$0"></div></div>
+            <hr class="divider">
+            <div style="font-size:10.5px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.6px;margin-bottom:9px;">Prior Arrests / Charges</div>
+            <div id="prior-arrests-list">
+              ${(c.priorArrests||[]).map((p,i)=>priorArrestHtml(intake.id,i,p)).join('')}
+            </div>
+            <button class="btn-add-row" onclick="addPriorArrest('${intake.id}')">+ Add Prior Arrest / Charge</button>
+            <hr class="divider">
+            <div style="font-size:10.5px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.6px;margin-bottom:9px;">Hearings</div>
+            <div class="form-row c2"><div class="form-group"><label class="form-label">Hearings Occurred?</label><div class="radio-group"><label class="radio-opt"><input type="radio" name="hrg_${intake.id}" value="yes" ${c.hearingsOccurred==='yes'?'checked':''}> Yes</label><label class="radio-opt"><input type="radio" name="hrg_${intake.id}" value="no" ${c.hearingsOccurred==='no'?'checked':''}> No</label></div></div><div class="form-group"><label class="form-label">Next Hearing Date</label><input class="form-input intake-field" type="date" data-path="caseInfo.nextHearing" value="${c.nextHearing||''}"></div></div>
+            <div class="form-group" style="margin-bottom:11px;"><label class="form-label">Hearing Notes / Outcome</label><textarea class="form-input form-textarea intake-field" data-path="caseInfo.hearingNotes">${c.hearingNotes||''}</textarea></div>
+            <div class="form-group"><label class="form-label">Narrative of Events Leading to Arrest</label><textarea class="form-input form-textarea intake-field" data-path="caseInfo.narrative" style="min-height:110px;">${c.narrative||''}</textarea></div>
+          </div>
+        </div>
+        <!-- Section 3: Financial -->
+        <div class="form-section">
+          <div class="fs-header"><div class="fs-num">3</div><h3>Financial Agreement</h3></div>
+          <div class="fs-body">
+            <div class="form-row c3"><div class="form-group"><label class="form-label">Fee Type</label><select class="form-input form-select intake-field" data-path="financialAgreement.feeType"><option${f.feeType==='Flat Fee'?' selected':''}>Flat Fee</option><option${f.feeType==='Hourly'?' selected':''}>Hourly</option><option${f.feeType==='Hybrid'?' selected':''}>Hybrid</option></select></div><div class="form-group"><label class="form-label">Total Fee</label><input class="form-input intake-field" data-path="financialAgreement.totalFee" value="${f.totalFee||''}" placeholder="$0"></div><div class="form-group"><label class="form-label">Retainer / Down Payment</label><input class="form-input intake-field" data-path="financialAgreement.retainer" value="${f.retainer||''}" placeholder="$0"></div></div>
+            <div class="form-row c2"><div class="form-group"><label class="form-label">Payment Plan?</label><div class="radio-group"><label class="radio-opt"><input type="radio" name="pp_${intake.id}" value="yes" ${f.paymentPlan==='yes'?'checked':''}> Yes</label><label class="radio-opt"><input type="radio" name="pp_${intake.id}" value="no" ${f.paymentPlan==='no'?'checked':''}> No</label></div></div><div class="form-group"><label class="form-label">Payment Method</label><select class="form-input form-select intake-field" data-path="financialAgreement.paymentMethod"><option${f.paymentMethod==='Cash'?' selected':''}>Cash</option><option${f.paymentMethod==='Card'?' selected':''}>Card</option><option${f.paymentMethod==='Zelle'?' selected':''}>Zelle</option><option${f.paymentMethod==='Cash + Zelle'?' selected':''}>Cash + Zelle</option><option${f.paymentMethod==='Other'?' selected':''}>Other</option></select></div></div>
+            <div class="form-row c3"><div class="form-group"><label class="form-label"># Installments</label><input class="form-input intake-field" type="number" data-path="financialAgreement.installments" value="${f.installments||''}" placeholder="0"></div><div class="form-group"><label class="form-label">Amount Each</label><input class="form-input intake-field" data-path="financialAgreement.perInstallment" value="${f.perInstallment||''}" placeholder="$0"></div><div class="form-group"><label class="form-label">First Due Date</label><input class="form-input intake-field" type="date" data-path="financialAgreement.firstDue" value="${f.firstDue||''}"></div></div>
+            <div class="fee-total-bar"><div><div class="ftb-label">Agreement Date</div><div style="color:#fff;font-size:13px;margin-top:2px;">${fmtDisplay(f.agreementDate)} · Maria Santos</div></div><div style="text-align:right;"><div class="ftb-label">Total Agreed Fee</div><div class="ftb-value">${f.totalFee||'—'}</div></div></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:9px;justify-content:flex-end;margin-top:4px;">
+          <button class="btn btn-outline" onclick="saveIntake('${intake.id}','draft')">Save Draft</button>
+          <button class="btn btn-gold" onclick="saveIntake('${intake.id}','completed')">Complete Intake</button>
+        </div>
+      </div>
+      <!-- SIDE PANEL -->
+      <div>
+        <div class="notes-box" style="margin-bottom:12px;">
+          <div class="nb-header"><div class="nb-icon" style="background:var(--blue-pale);color:var(--blue);">📝</div><h4>Intake Specialist Notes</h4></div>
+          <div class="nb-meta">Editable by: Intake Staff</div>
+          <div class="nb-body"><textarea class="form-input form-textarea" id="spec-notes" style="min-height:110px;font-size:12.5px;">${intake.specialistNotes||''}</textarea></div>
+        </div>
+        <div class="notes-box atty" style="margin-bottom:12px;">
+          <div class="nb-header"><div class="nb-icon" style="background:var(--gold-pale);color:var(--gold);">⚖</div><h4>Attorney Review Notes</h4></div>
+          <div class="nb-meta">Editable by: Attorneys only</div>
+          <div class="nb-body"><textarea class="form-input form-textarea" id="atty-notes" style="min-height:110px;font-size:12.5px;border-color:var(--gold);">${intake.attorneyNotes||''}</textarea></div>
+        </div>
+        <div class="card" style="margin-bottom:12px;">
+          <div class="card-header"><h3>AI Outreach</h3></div>
+          <div class="card-body">
+            <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px;">Send automated follow-up to client.</div>
+            <div style="display:flex;gap:7px;">
+              <button class="btn btn-sm btn-outline" style="flex:1;" onclick="logAIOutreach('${intake.leadId}')">📞 AI Call</button>
+              <button class="btn btn-sm btn-outline" style="flex:1;" onclick="logAIOutreach('${intake.leadId}')">💬 AI Text</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><h3>Activity</h3></div>
+          <div class="card-body" style="padding:10px 14px;">
+            <div class="timeline-item"><div class="tl-dot" style="background:var(--gold);"></div><div><div class="tl-text">Intake created</div><div class="tl-time">${fmtDisplay(intake.createdAt)}</div></div></div>
+            ${l?`<div class="timeline-item"><div class="tl-dot" style="background:var(--blue);"></div><div><div class="tl-text">Lead added: ${leadName(l)}</div><div class="tl-time">${fmtDisplay(l.createdAt)}</div></div></div>`:''}
+          </div>
+        </div>
+      </div>
+    </div>`;
+  // bind autosave on change
+  document.querySelectorAll('.intake-field').forEach(el=>{
+    el.addEventListener('change',()=>autoSaveIntakeField(intake.id,el));
+  });
+  document.querySelectorAll(`input[name="bondPaid_${intake.id}"]`).forEach(r=>r.addEventListener('change',()=>{intake.caseInfo.bondPaid=r.value;saveState();}));
+  document.querySelectorAll(`input[name="hrg_${intake.id}"]`).forEach(r=>r.addEventListener('change',()=>{intake.caseInfo.hearingsOccurred=r.value;saveState();}));
+  document.querySelectorAll(`input[name="pp_${intake.id}"]`).forEach(r=>r.addEventListener('change',()=>{intake.financialAgreement.paymentPlan=r.value;saveState();}));
+}
+
+function priorArrestHtml(iid,i,p){
+  return`<div class="prior-block" id="prior-${iid}-${i}">
+    <div class="prior-block-head"><span>Prior #${i+1}</span><button class="btn-remove" onclick="removePriorArrest('${iid}',${i})">Remove</button></div>
+    <div class="form-row c3" style="margin-bottom:0;">
+      <div class="form-group"><label class="form-label">Date</label><input class="form-input" value="${p.date||''}" type="date" onchange="updatePriorArrest('${iid}',${i},'date',this.value)"></div>
+      <div class="form-group"><label class="form-label">Charge</label><input class="form-input" value="${p.charge||''}" placeholder="Charge" onchange="updatePriorArrest('${iid}',${i},'charge',this.value)"></div>
+      <div class="form-group"><label class="form-label">Resolution</label><input class="form-input" value="${p.resolution||''}" placeholder="Outcome" onchange="updatePriorArrest('${iid}',${i},'resolution',this.value)"></div>
+    </div>
+  </div>`;
+}
+function addPriorArrest(iid){
+  const intake=getIntake(iid);if(!intake)return;
+  if(!intake.caseInfo.priorArrests)intake.caseInfo.priorArrests=[];
+  intake.caseInfo.priorArrests.push({date:'',charge:'',resolution:''});
+  saveState();
+  const list=document.getElementById('prior-arrests-list');
+  const i=intake.caseInfo.priorArrests.length-1;
+  const div=document.createElement('div');
+  div.innerHTML=priorArrestHtml(iid,i,{});
+  list.appendChild(div.firstChild);
+}
+function removePriorArrest(iid,i){
+  const intake=getIntake(iid);if(!intake)return;
+  intake.caseInfo.priorArrests.splice(i,1);saveState();
+  const el=document.getElementById(`prior-${iid}-${i}`);if(el)el.remove();
+}
+function updatePriorArrest(iid,i,field,val){
+  const intake=getIntake(iid);if(!intake)return;
+  intake.caseInfo.priorArrests[i][field]=val;saveState();
+}
+function autoSaveIntakeField(iid,el){
+  const intake=getIntake(iid);if(!intake)return;
+  const path=el.dataset.path.split('.');
+  let obj=intake;
+  path.slice(0,-1).forEach(k=>obj=obj[k]);
+  obj[path[path.length-1]]=el.value;
+  saveState();
+}
+function saveIntake(iid,status){
+  const intake=getIntake(iid);if(!intake)return;
+  intake.status=status;
+  const sn=document.getElementById('spec-notes');
+  const an=document.getElementById('atty-notes');
+  if(sn)intake.specialistNotes=sn.value;
+  if(an)intake.attorneyNotes=an.value;
+  // sync bio to lead
+  const l=getLead(intake.leadId);
+  if(l&&intake.bio){if(intake.bio.first)l.first=intake.bio.first;if(intake.bio.last)l.last=intake.bio.last;if(intake.bio.phone)l.phone=intake.bio.phone;if(intake.caseInfo.causeNum)l.causeNum=intake.caseInfo.causeNum;}
+  saveState();
+  S.activity.unshift({text:`<strong>Intake ${status==='completed'?'completed':'saved'}</strong> for <strong>${l?leadName(l):'client'}</strong>`,time:'Just now',color:status==='completed'?'var(--green)':'var(--gold)'});
+  saveState();
+  toast(`Intake ${status==='completed'?'completed and saved':'draft saved'}`,'success');
+  if(status==='completed'){showIntakeList();renderBadges();}
+}
+
+// ─────────────────────────────────────────────
+// TASKS
+// ─────────────────────────────────────────────
+function renderTasks(){
+  const td=today();
+  const openTasks=S.tasks.filter(t=>!t.done);
+  const overdue=openTasks.filter(t=>t.due<td).length;
+  document.getElementById('tasks-sub').textContent=`${openTasks.length} open · ${overdue} overdue`;
+  const filters=[
+    {id:'all',label:`All (${S.tasks.length})`},
+    {id:'overdue',label:`Overdue (${overdue})`},
+    {id:'today',label:`Due Today (${openTasks.filter(t=>t.due===td).length})`},
+    {id:'open',label:'Open'},
+    {id:'done',label:'Completed'},
+  ];
+  document.getElementById('task-filters').innerHTML=filters.map(f=>`<div class="filter-pill${taskFilter===f.id?' active':''}" onclick="setTaskFilter('${f.id}')">${f.label}</div>`).join('');
+  let tasks=[...S.tasks];
+  if(taskFilter==='overdue')tasks=tasks.filter(t=>!t.done&&t.due<td);
+  else if(taskFilter==='today')tasks=tasks.filter(t=>!t.done&&t.due===td);
+  else if(taskFilter==='open')tasks=tasks.filter(t=>!t.done);
+  else if(taskFilter==='done')tasks=tasks.filter(t=>t.done);
+  tasks.sort((a,b)=>{if(a.done!==b.done)return a.done?1:-1;return a.due>b.due?1:-1;});
+  const list=document.getElementById('task-list');
+  list.innerHTML=tasks.length?tasks.map(t=>taskRowHtml(t,td)).join(''):'<div class="empty-state"><p>No tasks match this filter.</p></div>';
+  list.querySelectorAll('.task-check').forEach(el=>{
+    el.addEventListener('click',(e)=>{e.stopPropagation();toggleTask(el.dataset.tid);});
+  });
+}
+function taskRowHtml(t,td){
+  const l=getLead(t.leadId);
+  let dueClass='due-ok',dueText=t.due?fmtDisplay(t.due):'No due date';
+  if(!t.done&&t.due){if(t.due<td){dueClass='due-overdue';dueText='Overdue · '+fmtDisplay(t.due);}else if(t.due===td){dueClass='due-today';dueText='Today';}}
+  const prCls=t.priority==='High'?'priority-high':t.priority==='Medium'?'priority-med':'priority-low';
+  return`<div class="task-row${t.done?' done':''}">
+    <div class="task-check${t.done?' checked':''}" data-tid="${t.id}">${t.done?'✓':''}</div>
+    <div class="task-info">
+      <p>${t.title}</p>
+      <span>${l?leadName(l)+' · ':''}<span class="task-type-chip">${t.type}</span></span>
+    </div>
+    <div class="task-meta">
+      <span class="tag ${prCls}" style="font-size:10px;">${t.priority}</span>
+      <div class="assignee-chip"><div class="chip-av">${t.assignedTo.split(' ').map(x=>x[0]).join('').slice(0,2)}</div>${t.assignedTo}</div>
+      <span class="due-chip ${dueClass}">${dueText}</span>
+      <button class="btn btn-xs btn-danger" onclick="deleteTask('${t.id}')">✕</button>
+    </div>
+  </div>`;
+}
+function setTaskFilter(f){taskFilter=f;renderTasks();}
+function toggleTask(id){
+  const t=S.tasks.find(x=>x.id===id);
+  if(!t)return;
+  t.done=!t.done;
+  if(t.done){const l=getLead(t.leadId);S.activity.unshift({text:`<strong>Task completed</strong>: ${t.title}${l?' ('+leadName(l)+')':''}`,time:'Just now',color:'var(--green)'});}
+  saveState();renderTasks();renderBadges();
+  toast(t.done?'Task marked complete':'Task reopened');
+}
+function deleteTask(id){
+  S.tasks=S.tasks.filter(t=>t.id!==id);saveState();renderTasks();renderBadges();toast('Task deleted');
+}
+function addTask(){
+  const title=document.getElementById('at-title').value.trim();
+  if(!title){toast('Please enter a task description.','error');return;}
+  const t={id:uid(),title,leadId:document.getElementById('at-lead').value||null,type:document.getElementById('at-type').value,priority:document.getElementById('at-priority').value,assignedTo:document.getElementById('at-assign').value,due:document.getElementById('at-due').value,done:false,createdAt:today()};
+  S.tasks.push(t);
+  saveState();closeModal('modal-add-task');renderTasks();renderBadges();
+  toast('Task created','success');
+}
+
+// ─────────────────────────────────────────────
+// CLIENTS
+// ─────────────────────────────────────────────
+function renderClients(){
+  const q=(document.getElementById('client-search')||{value:''}).value.toLowerCase();
+  const clients=S.leads.filter(l=>!q||(leadName(l)+l.phone+l.email+l.causeNum).toLowerCase().includes(q));
+  document.getElementById('clients-sub').textContent=`${S.leads.length} party records`;
+  const tbody=document.querySelector('#clients-table tbody');
+  tbody.innerHTML=clients.map(l=>{
+    const statusDot={new:'var(--amber)',scheduled:'var(--blue)',intake:'var(--purple)',retained:'var(--green)',lost:'var(--red)'}[l.stage]||'var(--text-muted)';
+    return`<tr>
+      <td style="font-weight:600;">${leadName(l)}</td>
+      <td>${l.phone}</td>
+      <td style="font-size:12px;">${l.email||'—'}</td>
+      <td>${tagHtml(l.area)}</td>
+      <td><span class="status-dot" style="background:${statusDot};"></span>${STAGE_LABELS[l.stage]||l.stage}</td>
+      <td style="font-size:12px;">${l.causeNum||'—'}</td>
+      <td style="font-size:12px;">${l.assignedTo||'—'}</td>
+      <td><button class="btn btn-xs btn-outline" onclick="selectLead('${l.id}');switchView('leads')">View</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ─────────────────────────────────────────────
+// AI OUTREACH
+// ─────────────────────────────────────────────
+function renderAI(){
+  const td=today();
+  const todayLogs=S.aiLog.filter(e=>e.time.startsWith(td)||new Date(e.time).toDateString()===new Date().toDateString());
+  const reached=todayLogs.filter(e=>e.outcome==='Reached').length;
+  const texts=todayLogs.filter(e=>e.type.includes('Text')).length;
+  const booked=todayLogs.filter(e=>e.result&&e.result.includes('booked')).length;
+  document.getElementById('ai-stats').innerHTML=`
+    <div style="background:var(--green-pale);border-radius:8px;padding:13px;"><div style="font-size:10.5px;color:var(--green);font-weight:700;text-transform:uppercase;letter-spacing:.8px;">Calls Today</div><div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;color:var(--navy);margin-top:5px;">${todayLogs.filter(e=>e.type.includes('Call')).length}</div><div style="font-size:11.5px;color:var(--text-secondary);">${reached} reached</div></div>
+    <div style="background:var(--blue-pale);border-radius:8px;padding:13px;"><div style="font-size:10.5px;color:var(--blue);font-weight:700;text-transform:uppercase;letter-spacing:.8px;">Texts Sent</div><div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;color:var(--navy);margin-top:5px;">${texts}</div><div style="font-size:11.5px;color:var(--text-secondary);">All delivered</div></div>
+    <div style="background:var(--amber-pale);border-radius:8px;padding:13px;"><div style="font-size:10.5px;color:var(--amber);font-weight:700;text-transform:uppercase;letter-spacing:.8px;">Appts Booked</div><div style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:600;color:var(--navy);margin-top:5px;">${booked}</div><div style="font-size:11.5px;color:var(--text-secondary);">By AI today</div></div>`;
+  const sel=document.getElementById('ai-sched-client');
+  sel.innerHTML=S.leads.map(l=>`<option value="${l.id}">${leadName(l)}</option>`).join('');
+  const body=document.getElementById('ai-log-body');
+  const sorted=[...S.aiLog].sort((a,b)=>b.time>a.time?1:-1);
+  body.innerHTML=sorted.map(e=>{
+    const l=getLead(e.leadId);
+    const oc=e.outcome==='Reached'?`<span style="background:var(--green-pale);color:var(--green);font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:4px;">Reached</span>`:e.outcome==='Delivered'?`<span style="background:var(--blue-pale);color:var(--blue);font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:4px;">Delivered</span>`:`<span style="background:var(--red-pale);color:var(--red);font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:4px;">${e.outcome}</span>`;
+    const t=new Date(e.time);const tstr=t.toLocaleDateString('en-US',{month:'short',day:'numeric'})+' · '+t.toLocaleTimeString('en-US',{hour:'numeric',minute:'2-digit'});
+    return`<tr><td style="padding:10px 14px;font-weight:600;">${l?leadName(l):'Unknown'}</td><td style="padding:10px 14px;font-size:12.5px;">${e.type}</td><td style="padding:10px 14px;font-size:12px;">${tstr}</td><td style="padding:10px 14px;">${oc}</td><td style="padding:10px 14px;font-size:12px;">${e.result||'—'}</td></tr>`;
+  }).join('');
+}
+function logAIOutreach(leadId){
+  const l=getLead(leadId);if(!l)return;
+  const outcomes=['Reached','No Answer','Reached','Delivered'];
+  const types=['📞 Follow-Up Call','💬 AI Text','📞 Reminder Call'];
+  const entry={id:uid(),leadId,type:types[Math.floor(Math.random()*types.length)],time:new Date().toISOString(),outcome:outcomes[Math.floor(Math.random()*outcomes.length)],result:'Follow-up logged'};
+  S.aiLog.unshift(entry);
+  l.lastContact=today();
+  S.activity.unshift({text:`<strong>AI Outreach</strong> sent to <strong>${leadName(l)}</strong> — ${entry.type}`,time:'Just now',color:'var(--purple)'});
+  saveState();toast(`AI outreach triggered for ${leadName(l)}`,'success');
+  renderBadges();
+}
+function scheduleAIOutreach(){
+  const lid=document.getElementById('ai-sched-client').value;
+  const type=document.getElementById('ai-sched-type').value;
+  const dt=document.getElementById('ai-sched-dt').value;
+  if(!lid||!dt){toast('Please select a client and time.','error');return;}
+  const l=getLead(lid);
+  const t=new S.tasks?undefined:undefined; // just add a task
+  S.tasks.push({id:uid(),title:`${type} — ${l?leadName(l):'client'}`,leadId:lid,type:'🤖 AI Outreach',priority:'Medium',assignedTo:'AI System',due:dt.split('T')[0],done:false,createdAt:today()});
+  saveState();toast('AI outreach scheduled','success');renderBadges();
+}
+
+// ══════════════════════════════════════════════
+// FEATURE 1: AI DOCUMENT GENERATOR
+// ══════════════════════════════════════════════
+let currentDocIntakeId = null;
+let currentDocType = null;
+let currentDocText = '';
+
+function openAIDocGenerator(intakeId) {
+  currentDocIntakeId = intakeId;
+  const intake = getIntake(intakeId);
+  const l = intake ? getLead(intake.leadId) : null;
+  document.getElementById('ai-doc-sub').textContent = l
+    ? `Generating documents for ${leadName(l)}'s intake record.`
+    : 'Select a document type to generate.';
+  showDocPicker();
+  openModal('modal-ai-doc');
+}
+
+function showDocPicker() {
+  document.getElementById('ai-doc-picker').style.display = 'block';
+  document.getElementById('ai-doc-output').style.display = 'none';
+  currentDocText = '';
+}
+
+async function generateDocument(docType) {
+  const intake = getIntake(currentDocIntakeId);
+  if (!intake) { toast('No intake selected.', 'error'); return; }
+  const l = getLead(intake.leadId);
+  const b = intake.bio; const c = intake.caseInfo; const f = intake.financialAgreement;
+  currentDocType = docType;
+
+  document.getElementById('ai-doc-picker').style.display = 'none';
+  document.getElementById('ai-doc-output').style.display = 'block';
+  document.getElementById('ai-doc-content').innerHTML = `<div class="generating-spinner"><div class="spin"></div>Generating document with AI — this takes about 10 seconds...</div>`;
+  document.getElementById('ai-doc-meta').textContent = '';
+
+  const docPrompts = {
+    retainer: `You are a Texas criminal defense attorney drafting a retainer agreement. Using the information below, write a complete, professional ENGAGEMENT / RETAINER AGREEMENT. Include: firm name placeholder "[FIRM NAME]", attorney name placeholder "[ATTORNEY NAME]", all client biographical information, case details, the exact fee structure and payment schedule, scope of representation (limited to the charges listed), client obligations, attorney obligations, termination clause, and signature blocks for client and attorney. Make it legally sound for Texas. Use formal legal language throughout.`,
+    summary: `You are a senior criminal defense attorney. Write an INTERNAL ATTORNEY CASE SUMMARY / MEMO for a colleague who will be reviewing this case for the first time. Include: client overview, charges and case posture, key facts from the narrative, prior criminal history analysis, bond status, upcoming deadlines, potential defenses to explore, red flags, and recommended next steps. Be analytical and direct — this is attorney-to-attorney communication.`,
+    welcome: `You are a client relations coordinator at a criminal defense law firm. Write a warm, professional WELCOME LETTER to a new client. Confirm their representation, briefly explain what happens next (intake review, attorney call, strategy session), set expectations about communication, and reassure them the firm is committed to their defense. Include placeholders for firm name and attorney name. Keep it clear and human — the client is likely anxious.`,
+    demand: `You are a legal assistant. Create a formatted CASE INTAKE REPORT for the firm's case file. Structure it with clear sections: Client Information, Case Details, Charge Summary, Criminal History, Financial Agreement Summary, Case Notes. Present all information factually and completely. This will be the primary case reference document.`
+  };
+
+  const clientData = `
+CLIENT: ${b.first||''} ${b.last||''} | DOB: ${b.dob||'N/A'} | Phone: ${b.phone||''} | Email: ${b.email||''} | Address: ${b.street||''}, ${b.city||''}, ${b.state||''} ${b.zip||''}
+
+CASE DETAILS:
+- Cause Number: ${c.causeNum||'TBD'}
+- Charges: ${c.charges||'Not specified'}
+- Jurisdiction: ${c.jurisdiction||'N/A'}
+- Date of Arrest: ${c.arrestDate||'N/A'}
+- Bond: ${c.bondPaid==='yes'?c.bondAmount+' ('+c.bondType+')':'Not posted / '+c.bondType}
+- Prior Arrests: ${(c.priorArrests||[]).length>0?(c.priorArrests||[]).map(p=>`${p.charge} (${p.date}, resolution: ${p.resolution})`).join('; '):'None reported'}
+- Hearings Occurred: ${c.hearingsOccurred==='yes'?'Yes — '+c.hearingNotes:'No'}
+- Next Hearing: ${c.nextHearing||'None scheduled'}
+- Client Narrative: ${c.narrative||'Not provided'}
+
+FINANCIAL AGREEMENT:
+- Fee Type: ${f.feeType||'Flat Fee'}
+- Total Fee: ${f.totalFee||'TBD'}
+- Retainer/Down Payment: ${f.retainer||'TBD'}
+- Payment Plan: ${f.paymentPlan==='yes'?`Yes — ${f.installments} installments of ${f.perInstallment}, first due ${f.firstDue}`:'No payment plan'}
+- Payment Method: ${f.paymentMethod||'TBD'}
+- Agreement Date: ${f.agreementDate||'Today'}
+
+SPECIALIST NOTES: ${intake.specialistNotes||'None'}
+ATTORNEY NOTES: ${intake.attorneyNotes||'None'}
+  `.trim();
+
+  const prompt = docPrompts[docType] + '\n\n---\nINTAKE DATA:\n' + clientData;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1800,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await response.json();
+    if (data.error) throw new Error(data.error.message);
+    const text = data.content.map(b => b.text || '').join('');
+    currentDocText = text;
+    document.getElementById('ai-doc-content').innerText = text;
+    document.getElementById('ai-doc-meta').textContent = `Generated ${new Date().toLocaleTimeString()} · ~${text.split(' ').length} words`;
+    const l2 = getLead(intake.leadId);
+    S.activity.unshift({ text: `<strong>AI Document</strong> generated: ${docType} for <strong>${l2?leadName(l2):'client'}</strong>`, time: 'Just now', color: 'var(--purple)' });
+    saveState();
+    toast('Document generated successfully', 'success');
+  } catch(err) {
+    document.getElementById('ai-doc-content').innerHTML = `<div style="color:var(--red);padding:20px;font-family:'DM Sans',sans-serif;font-size:13px;">
+      <strong>Generation failed:</strong> ${err.message}<br><br>
+      <strong>To enable AI documents:</strong> This feature calls the Anthropic Claude API directly from your browser. In a production deployment, you would add your API key to a secure backend proxy. For local testing, you can use a CORS proxy or Anthropic's API key directly (not recommended for production).<br><br>
+      <em>The document template and all intake data are ready — only the API connection is needed.</em>
+    </div>`;
+    document.getElementById('ai-doc-meta').textContent = 'API connection required';
+  }
+}
+
+function printDoc() {
+  const w = window.open('', '_blank');
+  w.document.write(`<html><head><title>LexFlow Document</title><style>body{font-family:'Georgia',serif;font-size:12pt;line-height:1.7;padding:40px;max-width:700px;margin:auto;color:#111;} h1,h2{font-weight:600;} h2{border-bottom:1px solid #ccc;padding-bottom:4px;margin-top:20px;}</style></head><body><pre style="font-family:inherit;white-space:pre-wrap;">${currentDocText}</pre></body></html>`);
+  w.document.close(); w.focus(); w.print();
+}
+
+function downloadDoc() {
+  if (!currentDocText) { toast('No document to download.', 'error'); return; }
+  const blob = new Blob([currentDocText], { type: 'text/plain' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = `LexFlow_${currentDocType}_${new Date().toISOString().slice(0,10)}.txt`;
+  a.click(); URL.revokeObjectURL(a.href);
+  toast('Document downloaded');
+}
+
+// ══════════════════════════════════════════════
+// FEATURE 2: CANVAS E-SIGNATURE
+// ══════════════════════════════════════════════
+let sigIntakeId = null;
+let sigCanvas, sigCtx, sigDrawing = false, sigLastX = 0, sigLastY = 0;
+
+function openSignaturePad(intakeId) {
+  sigIntakeId = intakeId;
+  const intake = getIntake(intakeId);
+  const l = intake ? getLead(intake.leadId) : null;
+  document.getElementById('sig-client-name').textContent = l
+    ? `Retainer agreement for ${leadName(l)} — ${intake.financialAgreement?.totalFee || 'amount TBD'}`
+    : 'Sign the retainer agreement below.';
+  document.getElementById('sig-date-display').textContent = new Date().toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' });
+  document.getElementById('sig-print-name').value = l ? leadName(l) : '';
+  openModal('modal-signature');
+  // Initialize canvas after modal opens
+  setTimeout(() => {
+    sigCanvas = document.getElementById('sig-canvas');
+    sigCtx = sigCanvas.getContext('2d');
+    // Scale canvas for high DPI
+    const rect = sigCanvas.getBoundingClientRect();
+    sigCanvas.width = rect.width * window.devicePixelRatio;
+    sigCanvas.height = rect.height * window.devicePixelRatio;
+    sigCtx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    sigCtx.strokeStyle = '#0B1628';
+    sigCtx.lineWidth = 2.5;
+    sigCtx.lineCap = 'round';
+    sigCtx.lineJoin = 'round';
+    clearSig();
+    bindSigEvents();
+  }, 80);
+}
+
+function bindSigEvents() {
+  if (!sigCanvas) return;
+  const getPos = (e, canvas) => {
+    const r = canvas.getBoundingClientRect();
+    if (e.touches) return { x: e.touches[0].clientX - r.left, y: e.touches[0].clientY - r.top };
+    return { x: e.clientX - r.left, y: e.clientY - r.top };
+  };
+  sigCanvas.onmousedown = sigCanvas.ontouchstart = (e) => {
+    e.preventDefault(); sigDrawing = true;
+    const p = getPos(e, sigCanvas); sigLastX = p.x; sigLastY = p.y;
+  };
+  sigCanvas.onmousemove = sigCanvas.ontouchmove = (e) => {
+    e.preventDefault(); if (!sigDrawing) return;
+    const p = getPos(e, sigCanvas);
+    sigCtx.beginPath(); sigCtx.moveTo(sigLastX, sigLastY); sigCtx.lineTo(p.x, p.y); sigCtx.stroke();
+    sigLastX = p.x; sigLastY = p.y;
+  };
+  sigCanvas.onmouseup = sigCanvas.onmouseleave = sigCanvas.ontouchend = () => { sigDrawing = false; };
+}
+
+function clearSig() {
+  if (!sigCtx || !sigCanvas) return;
+  const r = sigCanvas.getBoundingClientRect();
+  sigCtx.clearRect(0, 0, r.width, r.height);
+  // Draw guide line
+  sigCtx.setLineDash([4, 4]);
+  sigCtx.strokeStyle = '#d1d5db';
+  sigCtx.lineWidth = 1;
+  sigCtx.beginPath();
+  sigCtx.moveTo(20, r.height * 0.72);
+  sigCtx.lineTo(r.width - 20, r.height * 0.72);
+  sigCtx.stroke();
+  sigCtx.setLineDash([]);
+  sigCtx.strokeStyle = '#0B1628';
+  sigCtx.lineWidth = 2.5;
+}
+
+function saveSignature() {
+  if (!sigCanvas) { toast('Signature pad not ready.', 'error'); return; }
+  const printName = document.getElementById('sig-print-name').value.trim();
+  if (!printName) { toast('Please enter the client\'s printed name.', 'error'); return; }
+  // Check if anything was drawn (compare to blank)
+  const imgData = sigCtx.getImageData(0, 0, sigCanvas.width, sigCanvas.height);
+  const hasDrawing = imgData.data.some((v, i) => i % 4 === 3 && v > 10);
+  if (!hasDrawing) { toast('Please draw a signature before saving.', 'error'); return; }
+  const dataUrl = sigCanvas.toDataURL('image/png');
+  const intake = getIntake(sigIntakeId);
+  if (intake) {
+    if (!intake.signatures) intake.signatures = [];
+    intake.signatures.push({
+      type: 'client',
+      name: printName,
+      date: new Date().toISOString(),
+      image: dataUrl
+    });
+    // Mark financial agreement as signed
+    if (intake.financialAgreement) intake.financialAgreement.signed = true;
+    const l = getLead(intake.leadId);
+    S.activity.unshift({ text: `<strong>Retainer signed</strong> by <strong>${printName}</strong> — ${intake.financialAgreement?.totalFee||''}`, time: 'Just now', color: 'var(--green)' });
+    // Auto-move to retained
+    if (l && l.stage !== 'retained') { l.stage = 'retained'; l.lastContact = today(); }
+    saveState();
+    toast(`Signature saved. ${l?leadName(l):printName} is now retained.`, 'success');
+    closeModal('modal-signature');
+    renderBadges();
+    // Refresh intake form if open
+    if (activeIntakeId === sigIntakeId) {
+      const intake2 = getIntake(sigIntakeId);
+      const l2 = getLead(intake2.leadId);
+      renderIntakeForm(intake2, l2);
+    }
+  }
+}
+
+// ══════════════════════════════════════════════
+// FEATURE 3: LEGAL DEADLINE CALCULATOR
+// ══════════════════════════════════════════════
+let deadlineIntakeId = null;
+let calculatedDeadlines = [];
+
+// Texas criminal law deadline rules
+const DEADLINE_RULES = {
+  'DWI': [
+    { days: 15,  label: 'ALR Hearing Request (License Suspension)',     priority: 'urgent',    assignTo: 'R. Hoffman', type: '⚖ Legal' },
+    { days: 15,  label: 'Request DIC-81 form from arresting officer',   priority: 'urgent',    assignTo: 'R. Hoffman', type: '⚖ Legal' },
+    { days: 30,  label: 'File for discovery — dashcam / body cam footage', priority: 'urgent', assignTo: 'R. Hoffman', type: '⚖ Legal' },
+    { days: 30,  label: 'Obtain BAC / breathalyzer calibration records', priority: 'important', assignTo: 'R. Hoffman', type: '⚖ Legal' },
+    { days: 45,  label: 'Initial attorney-client strategy meeting',      priority: 'important', assignTo: 'Maria Santos', type: '📞 Call' },
+    { days: 60,  label: 'Review lab results if blood test ordered',      priority: 'important', assignTo: 'R. Hoffman', type: '⚖ Legal' },
+    { days: 90,  label: 'File motion to suppress if HGN challenged',    priority: 'normal',    assignTo: 'R. Hoffman', type: '⚖ Legal' },
+  ],
+  'DWI 2nd Offense': [
+    { days: 15,  label: 'ALR Hearing Request — CRITICAL (enhanced penalties)', priority: 'urgent',    assignTo: 'R. Hoffman', type: '⚖ Legal' },
+    { days: 15,  label: 'Request arresting officer DIC-81 form',         priority: 'urgent',    assignTo: 'R. Hoffman', type: '⚖ Legal' },
+    { days: 20,  label: 'Research prior DWI conviction — challenge enhancement', priority: 'urgent', assignTo: 'R. Hoffman', type: '⚖ Legal' },
+    { days: 30,  label: 'File for all discovery materials',              priority: 'urgent',    assignTo: 'R. Hoffman', type: '⚖ Legal' },
+    { days: 30,  label: 'Notify client of CDL / commercial license implications', priority: 'urgent', assignTo: 'Maria Santos', type: '📞 Call' },
+    { days: 45,  label: 'Strategy session — deferred adjudication eligibility', priority: 'important', assignTo: 'R. Hoffman', type: '⚖ Legal' },
+    { days: 60,  label: 'File motion to suppress evidence',              priority: 'important', assignTo: 'R. Hoffman', type: '⚖ Legal' },
+    { days: 90,  label: 'Plea negotiation or trial preparation review',  priority: 'normal',    assignTo: 'R. Hoffman', type: '⚖ Legal' },
+  ],
+  'Assault': [
+    { days: 10,  label: 'Request police report and witness statements',  priority: 'urgent',    assignTo: 'R. Hoffman', type: '⚖ Legal' },
+    { days: 14,  label: 'Contact alleged victim for statement (via counsel)', priority: 'urgent', assignTo: 'R. Hoffman', type: '⚖ Legal' },
+    { days: 21,  label: 'Obtain surveillance footage if available',      priority: 'important', assignTo: 'R. Hoffman', type: '⚖ Legal' },
+    { days: 30,  label: 'File discovery motion — all evidence',          priority: 'important', assignTo: 'R. Hoffman', type: '⚖ Legal' },
+    { days: 45,  label: 'Evaluate self-defense / affirmative defense options', priority: 'normal', assignTo: 'R. Hoffman', type: '⚖ Legal' },
+    { days: 60,  label: 'Plea negotiation or trial preparation',         priority: 'normal',    assignTo: 'R. Hoffman', type: '⚖ Legal' },
+  ],
+  'Drug Charges': [
+    { days: 10,  label: 'Request lab analysis / chain of custody records', priority: 'urgent',  assignTo: 'R. Hoffman', type: '⚖ Legal' },
+    { days: 14,  label: 'Challenge legality of search and seizure',      priority: 'urgent',    assignTo: 'R. Hoffman', type: '⚖ Legal' },
+    { days: 21,  label: 'File motion to suppress — 4th Amendment',       priority: 'urgent',    assignTo: 'R. Hoffman', type: '⚖ Legal' },
+    { days: 30,  label: 'Request all discovery materials',               priority: 'important', assignTo: 'R. Hoffman', type: '⚖ Legal' },
+    { days: 45,  label: 'Evaluate diversion program / deferred adjudication', priority: 'important', assignTo: 'R. Hoffman', type: '⚖ Legal' },
+    { days: 60,  label: 'Strategy session with client on plea vs. trial', priority: 'normal',   assignTo: 'Maria Santos', type: '📞 Call' },
+  ],
+  'default': [
+    { days: 10,  label: 'Obtain police report and all initial evidence', priority: 'urgent',    assignTo: 'R. Hoffman', type: '⚖ Legal' },
+    { days: 21,  label: 'File initial discovery request',                priority: 'important', assignTo: 'R. Hoffman', type: '⚖ Legal' },
+    { days: 30,  label: 'Attorney-client strategy meeting',              priority: 'important', assignTo: 'Maria Santos', type: '📞 Call' },
+    { days: 60,  label: 'Review all evidence and assess case posture',   priority: 'normal',    assignTo: 'R. Hoffman', type: '⚖ Legal' },
+    { days: 90,  label: 'Plea negotiation or trial preparation',         priority: 'normal',    assignTo: 'R. Hoffman', type: '⚖ Legal' },
+  ]
+};
+
+// Also always add: retainer follow-up and payment reminders
+const UNIVERSAL_DEADLINES = [
+  { days: 1,   label: 'Send welcome letter / confirmation to client',   priority: 'important', assignTo: 'Maria Santos', type: '📧 Email' },
+  { days: 3,   label: 'Confirm client received copy of retainer',       priority: 'important', assignTo: 'Maria Santos', type: '💬 Text' },
+  { days: 7,   label: 'Attorney first review of intake — case assessment', priority: 'important', assignTo: 'R. Hoffman', type: '⚖ Legal' },
+];
+
+function openDeadlineCalculator(intakeId) {
+  deadlineIntakeId = intakeId;
+  const intake = getIntake(intakeId);
+  if (!intake) { toast('No intake found.', 'error'); return; }
+  const l = getLead(intake.leadId);
+  const arrestDate = intake.caseInfo?.arrestDate;
+  if (!arrestDate) {
+    toast('Please enter the arrest date in the intake form first.', 'error');
+    return;
+  }
+  document.getElementById('dl-client-name').textContent = `${l ? leadName(l) : 'Client'} · Arrest: ${fmtDisplay(arrestDate)} · ${intake.caseInfo?.charges || 'Charges pending'}`;
+  // Match charge to rule set
+  const charges = (intake.caseInfo?.charges || '').toLowerCase();
+  let rules = DEADLINE_RULES.default;
+  if (charges.includes('dwi 2nd') || charges.includes('dwi second')) rules = DEADLINE_RULES['DWI 2nd Offense'];
+  else if (charges.includes('dwi')) rules = DEADLINE_RULES['DWI'];
+  else if (charges.includes('assault')) rules = DEADLINE_RULES['Assault'];
+  else if (charges.includes('drug') || charges.includes('possession') || charges.includes('trafficking')) rules = DEADLINE_RULES['Drug Charges'];
+  const baseDate = new Date(arrestDate + 'T00:00:00');
+  const addDays = (d, n) => { const r = new Date(d); r.setDate(r.getDate() + n); return r; };
+  const td = today();
+  // Build deadline list (universal first, then charge-specific)
+  const allRules = [...UNIVERSAL_DEADLINES, ...rules];
+  calculatedDeadlines = allRules.map((r, i) => {
+    const dueDate = addDays(baseDate, r.days);
+    const dueFmt = fmt(dueDate);
+    const isPast = dueFmt < td;
+    const existingTask = S.tasks.find(t => t.leadId === intake.leadId && t.title.includes(r.label.slice(0, 30)));
+    return { ...r, dueDate: dueFmt, dueDateDisplay: fmtDisplay(dueFmt), isPast, alreadyAdded: !!existingTask, idx: i };
+  });
+  renderDeadlineList();
+  openModal('modal-deadlines');
+}
+
+function renderDeadlineList() {
+  const td = today();
+  document.getElementById('dl-list').innerHTML = `
+    <div class="deadline-panel">
+      <div class="dl-header"><h4>Calculated Deadlines</h4><span style="font-size:11px;color:var(--text-muted);">${calculatedDeadlines.length} deadlines · based on arrest date</span></div>
+      ${calculatedDeadlines.map((d, i) => {
+        const pCls = d.priority === 'urgent' ? 'dl-urgent' : d.priority === 'important' ? 'dl-important' : 'dl-normal';
+        const pLabel = d.priority === 'urgent' ? 'URGENT' : d.priority === 'important' ? 'IMPORTANT' : 'NORMAL';
+        const pastStyle = d.isPast ? 'opacity:0.55;' : '';
+        const addedCls = d.alreadyAdded ? 'dl-added done' : '';
+        return `<div class="dl-item" style="${pastStyle}">
+          <div class="dl-check ${addedCls}" onclick="toggleDeadlineAdd(${i})">${d.alreadyAdded ? '✓' : ''}</div>
+          <div class="dl-date">${d.dueDateDisplay}${d.isPast ? ' ⚠' : ''}</div>
+          <div class="dl-label">${d.label}<br><span style="font-size:10.5px;color:var(--text-muted);">${d.type} · ${d.assignTo}</span></div>
+          <div class="dl-priority ${pCls}">${pLabel}</div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div style="font-size:11.5px;color:var(--text-muted);padding:4px 0;">
+      ⚠ Deadlines marked in grey are already past based on the arrest date. Verify with your attorney.
+    </div>`;
+}
+
+function toggleDeadlineAdd(i) {
+  const d = calculatedDeadlines[i];
+  const intake = getIntake(deadlineIntakeId);
+  if (!intake) return;
+  if (d.alreadyAdded) {
+    toast('Already added to tasks.'); return;
+  }
+  S.tasks.push({
+    id: uid(), title: d.label, leadId: intake.leadId,
+    type: d.type, priority: d.priority === 'urgent' ? 'High' : d.priority === 'important' ? 'Medium' : 'Low',
+    assignedTo: d.assignTo, due: d.dueDate, done: false, createdAt: today()
+  });
+  d.alreadyAdded = true;
+  saveState(); renderDeadlineList(); renderBadges();
+  toast(`"${d.label.slice(0, 40)}..." added to tasks`, 'success');
+}
+
+function addAllDeadlinesToTasks() {
+  const intake = getIntake(deadlineIntakeId);
+  if (!intake) return;
+  let added = 0;
+  calculatedDeadlines.forEach(d => {
+    if (d.alreadyAdded) return;
+    S.tasks.push({
+      id: uid(), title: d.label, leadId: intake.leadId,
+      type: d.type, priority: d.priority === 'urgent' ? 'High' : d.priority === 'important' ? 'Medium' : 'Low',
+      assignedTo: d.assignTo, due: d.dueDate, done: false, createdAt: today()
+    });
+    d.alreadyAdded = true;
+    added++;
+  });
+  saveState(); renderDeadlineList(); renderBadges();
+  toast(`${added} deadlines added to task list`, 'success');
+  closeModal('modal-deadlines');
+}
+
+// ══════════════════════════════════════════════
+// PATCH: inject new action buttons into intake form
+// ══════════════════════════════════════════════
+const _origRenderIntakeForm = renderIntakeForm;
+renderIntakeForm = function(intake, l) {
+  _origRenderIntakeForm(intake, l);
+  // Inject the new feature bar after the intake header
+  const headerBar = document.querySelector('.intake-header-bar');
+  if (!headerBar) return;
+  const featureBar = document.createElement('div');
+  featureBar.style.cssText = 'display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:18px;';
+  // Check sig status
+  const hasSig = (intake.signatures || []).length > 0;
+  const sigLabel = hasSig
+    ? `✅ Signed by ${intake.signatures[0].name}`
+    : '✍ Collect Signature';
+  const sigCls = hasSig ? 'btn-outline' : 'btn-gold';
+  featureBar.innerHTML = `
+    <button class="btn btn-sm btn-primary" onclick="openAIDocGenerator('${intake.id}')">🤖 Generate Document (AI)</button>
+    <button class="btn btn-sm ${sigCls}" onclick="openSignaturePad('${intake.id}')">${sigLabel}</button>
+    <button class="btn btn-sm btn-outline" onclick="openDeadlineCalculator('${intake.id}')">📅 Calculate Deadlines</button>
+    ${hasSig ? `<div style="font-size:11.5px;color:var(--green);font-weight:600;">● Retainer Signed · ${new Date(intake.signatures[0].date).toLocaleDateString()}</div>` : ''}
+    ${hasSig && intake.signatures[0].image ? `<img src="${intake.signatures[0].image}" style="height:36px;border:1px solid var(--border);border-radius:5px;background:#fff;padding:2px;" title="Client signature">` : ''}
+  `;
+  headerBar.insertAdjacentElement('afterend', featureBar);
+};
+
+// ══════════════════════════════════════════════
+// MOBILE NAVIGATION & HELPERS
+// ══════════════════════════════════════════════
+function isMobile(){ return window.innerWidth <= 768; }
+
+function mobileNav(viewId, el) {
+  // Close more drawer if open
+  closeMoreDrawer();
+  // Close lead detail panel if open
+  if(viewId !== 'leads') {
+    selectedLeadId = null;
+    const panel = document.getElementById('lead-detail-panel');
+    if(panel) panel.style.display = 'none';
+  }
+  // Switch the view
+  switchView(viewId);
+  // Update bottom nav active state
+  document.querySelectorAll('.bn-item').forEach(i => i.classList.remove('active'));
+  if(el) el.classList.add('active');
+  else {
+    const match = document.querySelector(`.bn-item[data-view="${viewId}"]`);
+    if(match) match.classList.add('active');
+  }
+}
+
+function toggleMoreDrawer(el) {
+  const drawer = document.getElementById('more-drawer');
+  const isOpen = drawer.classList.contains('open');
+  if(isOpen) { closeMoreDrawer(); }
+  else {
+    drawer.classList.add('open');
+    el.style.color = 'var(--gold-light)';
+  }
+}
+function closeMoreDrawer() {
+  const drawer = document.getElementById('more-drawer');
+  drawer.classList.remove('open');
+  // reset "more" button color
+  const moreBtn = document.querySelector('.bn-item:last-child');
+  if(moreBtn) moreBtn.style.color = '';
+}
+// Close drawer on outside tap
+document.addEventListener('click', function(e) {
+  const drawer = document.getElementById('more-drawer');
+  if(!drawer) return;
+  if(drawer.classList.contains('open') && !drawer.contains(e.target) && !e.target.closest('.bn-item:last-child')) {
+    closeMoreDrawer();
+  }
+});
+
+// Patch renderBadges to also update mobile badges
+const _origRenderBadges = renderBadges;
+renderBadges = function() {
+  _origRenderBadges();
+  const leadsCount = S.leads.filter(l => l.stage !== 'retained' && l.stage !== 'lost').length;
+  const intakeCount = S.leads.filter(l => l.stage === 'intake').length;
+  const tasksCount = S.tasks.filter(t => !t.done).length;
+  const mnbL = document.getElementById('mnb-leads');
+  const mnbI = document.getElementById('mnb-intake');
+  const mnbT = document.getElementById('mnb-tasks');
+  if(mnbL) mnbL.textContent = leadsCount;
+  if(mnbI) { mnbI.textContent = intakeCount; mnbI.style.display = intakeCount > 0 ? '' : 'none'; }
+  if(mnbT) mnbT.textContent = tasksCount;
+};
+
+// Mobile calendar — day list instead of week grid
+const _origRenderCalendar = renderCalendar;
+renderCalendar = function() {
+  _origRenderCalendar();
+  if(!isMobile()) return;
+  // Build a 14-day list view centered on today + calWeekOffset*7
+  const dayList = document.getElementById('cal-day-list');
+  if(!dayList) return;
+  const evClass = {Intake:'ev-intake',Consultation:'ev-consult','Follow-Up':'ev-followup',Hearing:'ev-hearing'};
+  const base = new Date();
+  base.setDate(base.getDate() + calWeekOffset * 7);
+  const days = Array.from({length:14}, (_, i) => {
+    const d = new Date(base); d.setDate(d.getDate() - 3 + i); return d;
+  });
+  const td = today();
+  dayList.innerHTML = days.map(d => {
+    const df = fmt(d);
+    const dayAppts = S.appointments.filter(a => a.date === df);
+    const isToday = df === td;
+    const dayLabel = d.toLocaleDateString('en-US', {weekday:'short', month:'short', day:'numeric'});
+    if(dayAppts.length === 0 && !isToday) return '';
+    return `<div class="card" style="${isToday ? 'border-color:var(--gold);' : ''}">
+      <div class="card-header" style="background:${isToday ? 'var(--navy)' : 'var(--bg)'};border-radius:9px 9px 0 0;">
+        <h3 style="color:${isToday ? 'var(--gold-light)' : 'var(--text-primary)'};">${dayLabel}${isToday ? ' — Today' : ''}</h3>
+        <span style="font-size:11px;color:${isToday ? 'rgba(255,255,255,.4)' : 'var(--text-muted)'};">${dayAppts.length} event${dayAppts.length !== 1 ? 's' : ''}</span>
+      </div>
+      <div class="card-body" style="padding:10px 14px;">
+        ${dayAppts.length === 0
+          ? `<div style="font-size:12.5px;color:var(--text-muted);">No appointments</div>`
+          : dayAppts.sort((a,b) => a.time > b.time ? 1 : -1).map(a => {
+              const l = getLead(a.leadId);
+              const sc = a.status==='Confirmed' ? 'var(--green)' : a.status==='Pending' ? 'var(--amber)' : 'var(--blue)';
+              return `<div class="cal-event ${evClass[a.type]||'ev-consult'}" style="margin-bottom:6px;padding:8px 10px;" onclick="showApptDetail('${a.id}')">
+                <div style="font-weight:600;">${l ? leadName(l) : 'Client'}</div>
+                <div style="font-size:11px;margin-top:2px;">${fmtTime(a.time)} · ${a.type} · ${a.format} · <span style="color:${sc};font-weight:600;">${a.status}</span></div>
+              </div>`;
+            }).join('')
+        }
+      </div>
+    </div>`;
+  }).filter(Boolean).join('');
+};
+
+// Make lead detail panel closeable on mobile by tapping the overlay
+document.getElementById('lead-detail-panel').addEventListener('click', function(e) {
+  if(isMobile() && e.target === this) closeLeadPanel();
+});
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+document.getElementById('dash-date').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+renderDashboard();
+renderBadges();
+</script>
+</body>
+</html>
