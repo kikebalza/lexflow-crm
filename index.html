@@ -396,11 +396,15 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
   .pipeline-board{flex-direction:column!important;gap:0!important;overflow-x:visible!important;}
   .pipeline-col{min-width:0!important;max-width:none!important;width:100%!important;}
   .col-body{min-height:0!important;}
-  /* Lead detail — full width, slide over */
+  /* Lead detail — full width slide-up sheet — only when .mobile-open */
   #lead-detail-panel{
     position:fixed!important;inset:0!important;z-index:40!important;
-    background:rgba(0,0,0,.45)!important;display:flex!important;
+    background:rgba(0,0,0,.45)!important;
     align-items:flex-end!important;padding:0!important;
+    display:none!important;
+  }
+  #lead-detail-panel.mobile-open{
+    display:flex!important;
   }
   #lead-detail-panel .lead-detail-panel{
     position:relative!important;max-height:85vh!important;
@@ -1162,7 +1166,11 @@ function selectLead(id){
   renderLeads();
   const panel=document.getElementById('lead-detail-panel');
   const content=document.getElementById('lead-detail-content');
-  panel.style.display='block';
+  if(isMobile()){
+    panel.classList.add('mobile-open');
+  } else {
+    panel.style.display='block';
+  }
   content.innerHTML=leadDetailHtml(l);
 }
 
@@ -1201,7 +1209,13 @@ function leadDetailHtml(l){
   </div>`;
 }
 
-function closeLeadPanel(){selectedLeadId=null;document.getElementById('lead-detail-panel').style.display='none';renderLeads();}
+function closeLeadPanel(){
+  selectedLeadId=null;
+  const panel=document.getElementById('lead-detail-panel');
+  panel.style.display='none';
+  panel.classList.remove('mobile-open');
+  renderLeads();
+}
 function openModalForLead(mid,lid){
   openModal(mid);
   if(mid==='modal-add-appt'){document.getElementById('ap-lead').value=lid;}
