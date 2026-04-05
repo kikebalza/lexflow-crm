@@ -271,6 +271,39 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:var(--bg);colo
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
 ::-webkit-scrollbar-thumb:hover{background:var(--border-hover);}
 
+/* ── FEATURE: DOCUMENT UPLOADS ── */
+.upload-drop-zone{
+  border:2px dashed var(--border);border-radius:10px;padding:28px 20px;
+  text-align:center;cursor:pointer;transition:all .15s;background:var(--bg);
+  position:relative;
+}
+.upload-drop-zone:hover,.upload-drop-zone.drag-over{
+  border-color:var(--gold);background:var(--gold-pale);
+}
+.upload-drop-zone input[type=file]{
+  position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;
+}
+.upload-drop-zone .udz-icon{font-size:28px;margin-bottom:8px;}
+.upload-drop-zone .udz-title{font-size:13px;font-weight:600;color:var(--text-primary);}
+.upload-drop-zone .udz-sub{font-size:12px;color:var(--text-muted);margin-top:4px;}
+.doc-file-list{display:flex;flex-direction:column;gap:8px;margin-top:12px;}
+.doc-file-item{
+  background:var(--surface);border:1px solid var(--border);border-radius:8px;
+  padding:11px 14px;display:flex;align-items:center;gap:12px;
+}
+.doc-file-item:hover{border-color:var(--border-hover);}
+.dfi-icon{font-size:22px;flex-shrink:0;}
+.dfi-info{flex:1;min-width:0;}
+.dfi-name{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dfi-meta{font-size:11px;color:var(--text-muted);margin-top:2px;}
+.dfi-tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:var(--blue-pale);color:var(--blue);white-space:nowrap;}
+.dfi-actions{display:flex;gap:6px;flex-shrink:0;}
+.storage-bar-wrap{margin-top:10px;}
+.storage-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:4px;}
+.storage-bar-fill{height:100%;border-radius:2px;background:var(--green);transition:width .3s;}
+.storage-bar-fill.warn{background:var(--amber);}
+.storage-bar-fill.danger{background:var(--red);}
+
 /* DIVIDER */
 .divider{border:none;border-top:1px solid var(--border);margin:14px 0;}
 
@@ -1471,6 +1504,25 @@ function renderIntakeForm(intake,l){
             <div class="fee-total-bar"><div><div class="ftb-label">Agreement Date</div><div style="color:#fff;font-size:13px;margin-top:2px;">${fmtDisplay(f.agreementDate)} · Maria Santos</div></div><div style="text-align:right;"><div class="ftb-label">Total Agreed Fee</div><div class="ftb-value">${f.totalFee||'—'}</div></div></div>
           </div>
         </div>
+        <!-- Section 4: Documents -->
+        <div class="form-section">
+          <div class="fs-header"><div class="fs-num">4</div><h3>Case Documents</h3></div>
+          <div class="fs-body">
+            <div class="upload-drop-zone" id="udz-${intake.id}" onclick="document.getElementById('file-input-${intake.id}').click()">
+              <input type="file" id="file-input-${intake.id}" multiple accept="*/*"
+                onchange="handleFileUpload('${intake.id}', this.files)" onclick="event.stopPropagation()">
+              <div class="udz-icon">📎</div>
+              <div class="udz-title">Tap to upload documents</div>
+              <div class="udz-sub">ID, court papers, police reports, bond receipts, photos — any file type</div>
+            </div>
+            <div class="doc-file-list" id="doc-list-${intake.id}">
+              ${renderDocList(intake)}
+            </div>
+            <div class="storage-bar-wrap" id="storage-info-${intake.id}">
+              ${renderStorageBar()}
+            </div>
+          </div>
+        </div>
         <div style="display:flex;gap:9px;justify-content:flex-end;margin-top:4px;">
           <button class="btn btn-outline" onclick="saveIntake('${intake.id}','draft')">Save Draft</button>
           <button class="btn btn-gold" onclick="saveIntake('${intake.id}','completed')">Complete Intake</button>
@@ -2112,6 +2164,179 @@ renderIntakeForm = function(intake, l) {
 };
 
 // ══════════════════════════════════════════════
+// FEATURE: DOCUMENT UPLOADS
+// ══════════════════════════════════════════════
+const DOC_TYPES = [
+  'Government-Issued ID',
+  'Driver\'s License',
+  'Passport',
+  'Court Document',
+  'Charging Document / Indictment',
+  'Police Report',
+  'Arrest Record',
+  'Bond Receipt / Bond Document',
+  'Probation / Parole Document',
+  'Prior Conviction Record',
+  'Lab / Test Results',
+  'Dashcam / Body Cam Footage',
+  'Medical Record',
+  'Financial Record',
+  'Retainer / Engagement Letter',
+  'Other'
+];
+
+const DOC_ICONS = {
+  'pdf': '📄', 'doc': '📝', 'docx': '📝', 'jpg': '🖼', 'jpeg': '🖼',
+  'png': '🖼', 'gif': '🖼', 'heic': '🖼', 'heif': '🖼',
+  'mp4': '🎬', 'mov': '🎬', 'avi': '🎬',
+  'xls': '📊', 'xlsx': '📊', 'csv': '📊',
+  'txt': '📋', 'default': '📎'
+};
+
+function getDocIcon(filename) {
+  const ext = (filename.split('.').pop() || '').toLowerCase();
+  return DOC_ICONS[ext] || DOC_ICONS.default;
+}
+
+function formatBytes(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+function getStorageUsed() {
+  try {
+    let total = 0;
+    for (let k in localStorage) {
+      if (localStorage.hasOwnProperty(k)) total += localStorage[k].length * 2;
+    }
+    return total;
+  } catch(e) { return 0; }
+}
+
+function renderStorageBar() {
+  const used = getStorageUsed();
+  const limit = 5 * 1024 * 1024; // 5MB estimate
+  const pct = Math.min(Math.round((used / limit) * 100), 100);
+  const cls = pct > 85 ? 'danger' : pct > 60 ? 'warn' : '';
+  return `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+    <span style="font-size:11px;color:var(--text-muted);">Local storage used</span>
+    <span style="font-size:11px;font-weight:600;color:var(--text-muted);">${formatBytes(used)} / ~5 MB</span>
+  </div>
+  <div class="storage-bar"><div class="storage-bar-fill ${cls}" style="width:${pct}%;"></div></div>
+  ${pct > 80 ? `<div style="font-size:11px;color:var(--amber);margin-top:5px;">⚠ Storage getting full — consider removing older files or deploying to a server for unlimited storage.</div>` : ''}`;
+}
+
+function renderDocList(intake) {
+  const docs = intake.documents || [];
+  if (docs.length === 0) return `<div style="font-size:12.5px;color:var(--text-muted);text-align:center;padding:10px 0;">No documents uploaded yet.</div>`;
+  return docs.map((doc, i) => `
+    <div class="doc-file-item">
+      <div class="dfi-icon">${getDocIcon(doc.originalName)}</div>
+      <div class="dfi-info">
+        <div class="dfi-name">${doc.label || doc.originalName}</div>
+        <div class="dfi-meta">${doc.originalName} · ${formatBytes(doc.size)} · ${fmtDisplay(doc.uploadedAt)}</div>
+      </div>
+      <span class="dfi-tag">${doc.docType}</span>
+      <div class="dfi-actions">
+        <button class="btn btn-xs btn-outline" onclick="downloadUploadedDoc('${intake.id}',${i})" title="Download">⬇</button>
+        <button class="btn btn-xs btn-danger" onclick="deleteUploadedDoc('${intake.id}',${i})" title="Delete">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+function handleFileUpload(intakeId, files) {
+  if (!files || files.length === 0) return;
+  const intake = getIntake(intakeId);
+  if (!intake) return;
+  if (!intake.documents) intake.documents = [];
+  // Process each file
+  let processed = 0;
+  Array.from(files).forEach(file => {
+    // Check size — warn if single file over 1MB
+    if (file.size > 1.5 * 1024 * 1024) {
+      toast(`"${file.name}" is large (${formatBytes(file.size)}) — may affect storage.`, 'error');
+    }
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      // Show naming modal for each file
+      openDocNamingModal(intakeId, file.name, file.size, e.target.result);
+      processed++;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+let pendingDoc = null;
+function openDocNamingModal(intakeId, originalName, size, dataUrl) {
+  pendingDoc = { intakeId, originalName, size, dataUrl };
+  const modal = document.getElementById('modal-doc-name');
+  document.getElementById('doc-name-filename').textContent = originalName;
+  document.getElementById('doc-name-label').value = '';
+  document.getElementById('doc-name-type').value = DOC_TYPES[0];
+  modal.classList.add('open');
+  // Focus the label input
+  setTimeout(() => document.getElementById('doc-name-label').focus(), 100);
+}
+
+function saveDocName() {
+  if (!pendingDoc) return;
+  const label = document.getElementById('doc-name-label').value.trim();
+  const docType = document.getElementById('doc-name-type').value;
+  if (!label) { toast('Please enter a name for this document.', 'error'); return; }
+  const intake = getIntake(pendingDoc.intakeId);
+  if (!intake) return;
+  if (!intake.documents) intake.documents = [];
+  intake.documents.push({
+    label,
+    docType,
+    originalName: pendingDoc.originalName,
+    size: pendingDoc.size,
+    dataUrl: pendingDoc.dataUrl,
+    uploadedAt: today()
+  });
+  const l = getLead(intake.leadId);
+  S.activity.unshift({
+    text: `<strong>Document uploaded</strong>: "${label}" (${docType}) for <strong>${l ? leadName(l) : 'client'}</strong>`,
+    time: 'Just now', color: 'var(--blue)'
+  });
+  saveState();
+  closeModal('modal-doc-name');
+  pendingDoc = null;
+  // Refresh doc list and storage bar in the form
+  const docList = document.getElementById(`doc-list-${intake.id}`);
+  const storageInfo = document.getElementById(`storage-info-${intake.id}`);
+  if (docList) docList.innerHTML = renderDocList(intake);
+  if (storageInfo) storageInfo.innerHTML = renderStorageBar();
+  toast(`"${label}" uploaded successfully`, 'success');
+}
+
+function downloadUploadedDoc(intakeId, idx) {
+  const intake = getIntake(intakeId);
+  if (!intake || !intake.documents || !intake.documents[idx]) return;
+  const doc = intake.documents[idx];
+  const a = document.createElement('a');
+  a.href = doc.dataUrl;
+  a.download = doc.originalName;
+  a.click();
+  toast(`Downloading "${doc.label}"...`);
+}
+
+function deleteUploadedDoc(intakeId, idx) {
+  const intake = getIntake(intakeId);
+  if (!intake || !intake.documents) return;
+  const doc = intake.documents[idx];
+  if (!confirm(`Delete "${doc.label}"? This cannot be undone.`)) return;
+  intake.documents.splice(idx, 1);
+  saveState();
+  const docList = document.getElementById(`doc-list-${intakeId}`);
+  const storageInfo = document.getElementById(`storage-info-${intakeId}`);
+  if (docList) docList.innerHTML = renderDocList(intake);
+  if (storageInfo) storageInfo.innerHTML = renderStorageBar();
+  toast(`"${doc.label}" deleted`);
+}
+
+// ══════════════════════════════════════════════
 // MOBILE NAVIGATION & HELPERS
 // ══════════════════════════════════════════════
 function isMobile(){ return window.innerWidth <= 768; }
@@ -2231,5 +2456,51 @@ document.getElementById('dash-date').textContent=new Date().toLocaleDateString('
 renderDashboard();
 renderBadges();
 </script>
+
+<!-- ══ MODAL: DOCUMENT NAMING ══ -->
+<div class="overlay" id="modal-doc-name">
+  <div class="modal" style="width:460px;">
+    <button class="modal-close" onclick="closeModal('modal-doc-name');pendingDoc=null;">✕</button>
+    <h2>Name This Document</h2>
+    <p class="sub">Give this file a clear name so it's easy to find later.</p>
+    <div style="background:var(--bg);border-radius:7px;padding:10px 13px;margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+      <span style="font-size:20px;">📎</span>
+      <span style="font-size:12.5px;color:var(--text-secondary);word-break:break-all;" id="doc-name-filename">filename.pdf</span>
+    </div>
+    <div class="form-group" style="margin-bottom:14px;">
+      <label class="form-label">Document Name *</label>
+      <input class="form-input" id="doc-name-label" placeholder="e.g. Carlos Reyes — Driver's License"
+        onkeydown="if(event.key==='Enter')saveDocName()">
+      <span style="font-size:11px;color:var(--text-muted);margin-top:4px;">Be specific — include the client name if helpful</span>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Document Type *</label>
+      <select class="form-input form-select" id="doc-name-type">
+        <option>Government-Issued ID</option>
+        <option>Driver's License</option>
+        <option>Passport</option>
+        <option>Court Document</option>
+        <option>Charging Document / Indictment</option>
+        <option>Police Report</option>
+        <option>Arrest Record</option>
+        <option>Bond Receipt / Bond Document</option>
+        <option>Probation / Parole Document</option>
+        <option>Prior Conviction Record</option>
+        <option>Lab / Test Results</option>
+        <option>Dashcam / Body Cam Footage</option>
+        <option>Medical Record</option>
+        <option>Financial Record</option>
+        <option>Retainer / Engagement Letter</option>
+        <option>Photo / Image</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal('modal-doc-name');pendingDoc=null;">Cancel</button>
+      <button class="btn btn-gold" onclick="saveDocName()">Save Document</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
